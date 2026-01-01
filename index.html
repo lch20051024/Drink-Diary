@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA 宣告 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="手搖日記">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#FFFBF5">
+
+    <!-- 桌面圖示 -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23FFFBF5%22/><text y=%22.85em%22 x=%225%22 font-size=%2280%22>🧋</text></svg>">
+    
+    <!-- Manifest (加入 ID 強制系統識別更新) -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJnameIjogIjIwMjYg手搖成癮日記IiwKICAic2hvcnRfbmFtZSI6ICLmiYvmkJzo日記IiwKICAic3RhcnRfdXJsIjogIi4vP3VwZGF0ZT0yMDI2MDEiLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNGRkZCRjUiLAogICJ0aGVtZV9jb2xvciI6ICIjNzk1NTQ4Igp9">
+
+    <title>2026 手搖成癮日記🧋</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --color-deep-coffee: #5D4037;
+            --color-coffee: #795548;
+            --color-latte: #A68B7C;
+            --color-milktea: #D7CCC8;
+            --color-cream: #F5EBE0;
+            --color-paper: #FFFBF5;
+        }
+
+        body {
+            font-family: 'Quicksand', 'Noto Sans TC', sans-serif;
+            background-color: var(--color-paper);
+            color: var(--color-deep-coffee);
+            font-weight: 700;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .calendar-card {
+            background-color: white;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(121, 85, 72, 0.05);
+        }
+
+        .day-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            border-radius: 14px;
+            position: relative;
+        }
+
+        .day-cell.today-marker {
+            background-color: var(--color-cream);
+        }
+
+        .dots-container {
+            position: absolute;
+            top: 15%;
+            display: flex;
+            gap: 2px;
+        }
+
+        .record-dot {
+            width: 4px;
+            height: 4px;
+            background-color: var(--color-coffee);
+            border-radius: 50%;
+        }
+
+        .modal {
+            display: none; 
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(93, 64, 55, 0.3);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-coffee), var(--color-deep-coffee));
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        @media (max-width: 380px) {
+            .options-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .radio-label input:checked + span {
+            background-color: var(--color-coffee);
+            color: white;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <div class="max-w-md mx-auto space-y-6 pt-4">
+        <div class="text-center space-y-3">
+            <h1 class="text-3xl font-black text-[#5D4037]">2026 手搖成癮日記 🧋</h1>
+            <div class="flex justify-center gap-2">
+                <button onclick="toggleFavStats()" class="border-2 border-[#795548] text-[#795548] px-5 py-1.5 rounded-full text-[10px] font-black active:scale-90">
+                    我的最愛店家 🏆
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
+                <p class="text-[9px] text-stone-300 font-black mb-1 uppercase tracking-wider">本月金額</p>
+                <p class="text-xl font-black text-[#795548]">$ <span id="monthTotal">0</span></p>
+            </div>
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
+                <p class="text-[9px] text-stone-300 font-black mb-1 uppercase tracking-wider">本月杯數</p>
+                <p class="text-xl font-black text-[#795548]"><span id="monthCups">0</span> 杯</p>
+            </div>
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
+                <p class="text-[9px] text-stone-300 font-black mb-1 uppercase tracking-wider">年度金額</p>
+                <p class="text-xl font-black text-[#A68B7C]">$ <span id="yearTotal">0</span></p>
+            </div>
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
+                <p class="text-[9px] text-stone-300 font-black mb-1 uppercase tracking-wider">年度杯數</p>
+                <p class="text-xl font-black text-[#A68B7C]"><span id="yearCups">0</span> 杯</p>
+            </div>
+        </div>
+
+        <div class="calendar-card overflow-hidden">
+            <div class="flex items-center justify-between p-5 border-b border-stone-50">
+                <button id="prevMonth" class="w-12 h-12 flex items-center justify-center font-black text-[#795548]">◀</button>
+                <h2 id="currentMonthYear" class="text-lg font-black text-[#5D4037]">2026年 1月</h2>
+                <button id="nextMonth" class="w-12 h-12 flex items-center justify-center font-black text-[#795548]">▶</button>
+            </div>
+            <div class="p-5">
+                <div class="grid grid-cols-7 mb-3 text-center text-[9px] font-black text-stone-200">
+                    <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+                </div>
+                <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
+            </div>
+            <div class="p-5 bg-stone-50/30">
+                <button onclick="toggleStats()" class="w-full py-4 btn-primary text-white rounded-2xl font-black shadow-lg active:scale-95 transition-all">
+                    查看日記清單 📖
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 彈窗：單日紀錄 -->
+    <div id="entryModal" class="modal p-4">
+        <div class="bg-white rounded-[40px] w-full max-w-sm overflow-hidden shadow-2xl border-4 border-white">
+            <div class="bg-stone-50 p-6 flex justify-between items-center">
+                <h3 id="modalTitle" class="text-lg font-black text-[#5D4037]">紀錄</h3>
+                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center text-2xl font-light">×</button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <input type="hidden" id="selectedDate">
+                <div id="existingDrinksContainer" class="space-y-3"></div>
+                <button id="addNewDrinkBtn" onclick="showDrinkForm()" class="w-full py-5 border-2 border-dashed border-[#D7CCC8] text-[#A68B7C] rounded-2xl font-black text-xs">
+                    + 新增紀錄 (最多2杯)
+                </button>
+
+                <form id="drinkForm" class="hidden space-y-4 bg-stone-50/50 p-5 rounded-3xl border border-stone-100">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="shopName" placeholder="店名" required class="w-full p-4 rounded-xl shadow-sm text-sm outline-none">
+                        <input type="number" id="price" placeholder="金額" class="w-full p-4 rounded-xl shadow-sm text-sm outline-none">
+                    </div>
+                    <input type="text" id="itemName" placeholder="飲料名稱" required class="w-full p-4 rounded-xl shadow-sm text-sm outline-none">
+                    
+                    <div>
+                        <label class="block text-[10px] font-black text-stone-300 mb-2 ml-1">冰塊</label>
+                        <div class="options-grid">
+                            <label class="radio-label"><input type="radio" name="ice" value="正常" class="hidden" required><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">正常</span></label>
+                            <label class="radio-label"><input type="radio" name="ice" value="少冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">少冰</span></label>
+                            <label class="radio-label"><input type="radio" name="ice" value="微冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">微冰</span></label>
+                            <label class="radio-label"><input type="radio" name="ice" value="去冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">去冰</span></label>
+                            <label class="radio-label"><input type="radio" name="ice" value="常溫" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">常溫</span></label>
+                            <label class="radio-label"><input type="radio" name="ice" value="溫" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">溫</span></label>
+                            <label class="radio-label"><input type="radio" name="ice" value="熱" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">熱</span></label>
+                            <label class="radio-label"><input type="radio" name="ice" value="固定" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">固定</span></label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-stone-300 mb-2 ml-1">甜度</label>
+                        <div class="options-grid">
+                            <label class="radio-label"><input type="radio" name="sugar" value="全糖" class="hidden" required><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">全糖</span></label>
+                            <label class="radio-label"><input type="radio" name="sugar" value="少糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">少糖</span></label>
+                            <label class="radio-label"><input type="radio" name="sugar" value="半糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">半糖</span></label>
+                            <label class="radio-label"><input type="radio" name="sugar" value="微糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">微糖</span></label>
+                            <label class="radio-label"><input type="radio" name="sugar" value="一分糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">一分糖</span></label>
+                            <label class="radio-label"><input type="radio" name="sugar" value="無糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">無糖</span></label>
+                            <label class="radio-label"><input type="radio" name="sugar" value="固定" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">固定</span></label>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button type="button" onclick="hideDrinkForm()" class="flex-1 py-4 text-stone-400 font-black text-[10px]">取消</button>
+                        <button type="submit" class="flex-[2] py-4 btn-primary text-white rounded-xl font-black text-[11px] shadow-lg">儲存 🥤</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="statsModal" class="modal p-4"><div class="bg-white rounded-[40px] w-full max-w-sm h-[75vh] flex flex-col shadow-2xl overflow-hidden border-4 border-white"><div class="bg-stone-50 p-6 flex justify-between items-center"><h3 class="text-lg font-black">日記清單 📖</h3><button onclick="toggleStats()" class="w-10 h-10 flex items-center justify-center text-2xl">×</button></div><div id="statsContent" class="p-6 overflow-y-auto flex-1 space-y-3 bg-stone-50/20"></div></div></div>
+    <div id="favModal" class="modal p-4"><div class="bg-white rounded-[40px] w-full max-w-sm border-4 border-white shadow-2xl overflow-hidden"><div class="bg-stone-50 p-6 flex justify-between items-center"><h3 class="text-lg font-black">店家分析 🏆</h3><button onclick="toggleFavStats()" class="w-10 h-10 flex items-center justify-center text-2xl">×</button></div><div id="favContent" class="p-6 space-y-3 bg-stone-50/20 max-h-[50vh] overflow-y-auto"></div></div></div>
+
+    <script>
+        const now = new Date();
+        const year = 2026;
+        let currentMonth = now.getMonth();
+        let drinkData = JSON.parse(localStorage.getItem('drinkData_2026_final_v2')) || {};
+        const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const title = document.getElementById('currentMonthYear');
+            grid.innerHTML = '';
+            title.innerText = `${year}年 ${monthNames[currentMonth]}`;
+            const firstDay = new Date(year, currentMonth, 1).getDay();
+            const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
+            
+            for (let i = 0; i < firstDay; i++) { grid.innerHTML += '<div></div>'; }
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateKey = `${year}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const isToday = (now.getFullYear() === year && now.getMonth() === currentMonth && d === now.getDate());
+                const cell = document.createElement('div');
+                cell.className = `day-cell text-[#5D4037] text-base font-black ${isToday ? 'today-marker' : ''}`;
+                if (drinkData[dateKey]) {
+                    const dots = document.createElement('div');
+                    dots.className = 'dots-container';
+                    drinkData[dateKey].forEach(() => {
+                        const dot = document.createElement('div'); dot.className = 'record-dot'; dots.appendChild(dot);
+                    });
+                    cell.appendChild(dots);
+                }
+                cell.innerHTML += `<span>${d}</span>`;
+                cell.onclick = () => openModal(dateKey);
+                grid.appendChild(cell);
+            }
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            let mTotal = 0, mCups = 0, yTotal = 0, yCups = 0;
+            const mPrefix = `${year}-${String(currentMonth + 1).padStart(2, '0')}`;
+            Object.keys(drinkData).forEach(date => {
+                drinkData[date].forEach(d => {
+                    const price = parseFloat(d.price) || 0;
+                    yTotal += price; yCups++;
+                    if (date.startsWith(mPrefix)) { mTotal += price; mCups++; }
+                });
+            });
+            document.getElementById('monthTotal').innerText = mTotal.toLocaleString();
+            document.getElementById('monthCups').innerText = mCups;
+            document.getElementById('yearTotal').innerText = yTotal.toLocaleString();
+            document.getElementById('yearCups').innerText = yCups;
+        }
+
+        function openModal(date) {
+            document.getElementById('selectedDate').value = date;
+            document.getElementById('modalTitle').innerText = date.replace(/-/g, ' / ');
+            hideDrinkForm(); renderExistingDrinks();
+            document.getElementById('entryModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('entryModal').style.display = 'none'; }
+
+        function renderExistingDrinks() {
+            const date = document.getElementById('selectedDate').value;
+            const container = document.getElementById('existingDrinksContainer');
+            const drinks = drinkData[date] || [];
+            container.innerHTML = drinks.map((drink, index) => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-[9px] text-stone-300 font-black uppercase tracking-tight">${drink.shop}</p>
+                        <p class="font-black text-[#5D4037] text-sm">${drink.item}</p>
+                        <p class="text-[9px] text-[#A68B7C] font-black mt-1">${drink.ice} / ${drink.sugar} • $${drink.price || 0}</p>
+                    </div>
+                    <button onclick="deleteDrink(${index})" class="text-red-200 text-[10px] font-black p-2">刪除</button>
+                </div>`).join('');
+            document.getElementById('addNewDrinkBtn').style.display = (drinks.length >= 2) ? 'none' : 'block';
+        }
+
+        function showDrinkForm() {
+            document.getElementById('drinkForm').reset();
+            document.querySelectorAll('.radio-label span').forEach(s => s.classList.remove('bg-[#795548]', 'text-white'));
+            document.getElementById('drinkForm').classList.remove('hidden');
+            document.getElementById('addNewDrinkBtn').style.display = 'none';
+        }
+
+        function hideDrinkForm() { document.getElementById('drinkForm').classList.add('hidden'); renderExistingDrinks(); }
+
+        function deleteDrink(index) {
+            const date = document.getElementById('selectedDate').value;
+            drinkData[date].splice(index, 1);
+            if (drinkData[date].length === 0) delete drinkData[date];
+            localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(drinkData));
+            renderCalendar(); renderExistingDrinks();
+        }
+
+        document.getElementById('drinkForm').onsubmit = (e) => {
+            e.preventDefault();
+            const date = document.getElementById('selectedDate').value;
+            const newDrink = {
+                shop: document.getElementById('shopName').value,
+                item: document.getElementById('itemName').value,
+                price: document.getElementById('price').value,
+                ice: document.querySelector('input[name="ice"]:checked').value,
+                sugar: document.querySelector('input[name="sugar"]:checked').value
+            };
+            if (!drinkData[date]) drinkData[date] = [];
+            drinkData[date].push(newDrink);
+            localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(drinkData));
+            renderCalendar(); hideDrinkForm();
+        };
+
+        function toggleStats() {
+            const m = document.getElementById('statsModal');
+            if (m.style.display === 'flex') m.style.display = 'none'; else { renderStats(); m.style.display = 'flex'; }
+        }
+
+        function renderStats() {
+            const container = document.getElementById('statsContent');
+            const dates = Object.keys(drinkData).sort().reverse();
+            if (!dates.length) { container.innerHTML = '<p class="text-center py-10 text-stone-300 text-xs font-black">尚無紀錄 🧋</p>'; return; }
+            container.innerHTML = dates.map(d => drinkData[d].map(drink => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm">
+                    <div class="flex justify-between text-[9px] font-black text-stone-200 mb-1"><span>${d}</span><span>$${drink.price || 0}</span></div>
+                    <p class="font-black text-[#5D4037] text-sm">${drink.item}</p>
+                    <p class="text-[10px] text-stone-400 mt-1">${drink.shop} • ${drink.ice} / ${drink.sugar}</p>
+                </div>`).join('')).join('');
+        }
+
+        function toggleFavStats() {
+            const m = document.getElementById('favModal');
+            if (m.style.display === 'flex') m.style.display = 'none'; else { renderFavStats(); m.style.display = 'flex'; }
+        }
+
+        function renderFavStats() {
+            const container = document.getElementById('favContent');
+            const stats = {};
+            Object.values(drinkData).flat().forEach(d => { stats[d.shop] = (stats[d.shop] || 0) + 1; });
+            const sorted = Object.entries(stats).sort((a,b) => b[1]-a[1]);
+            if (!sorted.length) { container.innerHTML = '<p class="text-center py-10 text-stone-300 text-xs font-black">尚無數據</p>'; return; }
+            container.innerHTML = sorted.map(([name, count], i) => `
+                <div class="bg-white p-5 rounded-xl flex justify-between items-center shadow-sm">
+                    <span class="font-black text-xs text-[#5D4037]">${i+1}. ${name}</span>
+                    <span class="font-black text-[#795548] text-sm">${count} 杯</span>
+                </div>`).join('');
+        }
+
+        document.body.addEventListener('change', e => {
+            if (e.target.type === 'radio') {
+                document.querySelectorAll(`input[name="${e.target.name}"]`).forEach(i => i.nextElementSibling.classList.remove('bg-[#795548]', 'text-white'));
+                e.target.nextElementSibling.classList.add('bg-[#795548]', 'text-white');
+            }
+        });
+
+        document.getElementById('prevMonth').onclick = () => { if (currentMonth > 0) { currentMonth--; renderCalendar(); } };
+        document.getElementById('nextMonth').onclick = () => { if (currentMonth < 11) { currentMonth++; renderCalendar(); } };
+        
+        renderCalendar();
+    </script>
+</body>
+</html>
+
+
