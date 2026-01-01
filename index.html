@@ -4,19 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- PWA 宣告 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="手搖日記">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#FFFBF5">
 
-    <!-- 桌面圖示 -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23FFFBF5%22/><text y=%22.85em%22 x=%225%22 font-size=%2280%22>🧋</text></svg>">
     <link rel="apple-touch-icon" href="https://em-content.zobj.net/source/apple/354/bubble-tea_1f9cb.png">
 
-    
-    <!-- Manifest (加入 ID 強制系統識別更新) -->
     <link rel="manifest" href="data:application/json;base64,ewogICJnameIjogIjIwMjYg手搖成癮日記IiwKICAic2hvcnRfbmFtZSI6ICLmiYvmkJzo日記IiwKICAic3RhcnRfdXJsIjogIi4vP3VwZGF0ZT0yMDI2MDEiLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNGRkZCRjUiLAogICJ0aGVtZV9jb2xvciI6ICIjNzk1NTQ4Igp9">
 
     <title>2026 手搖成癮日記</title>
@@ -115,23 +111,28 @@
 
     <div class="max-w-md mx-auto space-y-6 pt-4">
         <div class="flex justify-center pt-4">
-    <div class="relative w-32 h-32">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <path d="M30 20 L70 20 L65 85 C64 92 36 92 35 85 Z" fill="#FFFFFF" stroke="#5D4037" stroke-width="3"/>
-            <path d="M33 40 L67 40 L65 83 C64 88 36 88 35 83 Z" fill="#D7CCC8"/>
-            <circle cx="40" cy="75" r="3" fill="#333"/>
-            <circle cx="50" cy="78" r="3" fill="#333"/>
-            <circle cx="60" cy="75" r="3" fill="#333"/>
-            <circle cx="45" cy="68" r="3" fill="#333"/>
-            <circle cx="55" cy="70" r="3" fill="#333"/>
-            <rect x="48" y="5" width="6" height="25" fill="#A68B7C" stroke="#5D4037" stroke-width="1"/>
-            <rect x="28" y="18" width="44" height="5" rx="2" fill="#5D4037"/>
-        </svg>
-    </div>
-</div>
+            <div class="relative w-32 h-32">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M30 20 L70 20 L65 85 C64 92 36 92 35 85 Z" fill="#FFFFFF" stroke="#5D4037" stroke-width="3"/>
+                    <path d="M33 40 L67 40 L65 83 C64 88 36 88 35 83 Z" fill="#D7CCC8"/>
+                    <circle cx="40" cy="75" r="3" fill="#333"/>
+                    <circle cx="50" cy="78" r="3" fill="#333"/>
+                    <circle cx="60" cy="75" r="3" fill="#333"/>
+                    <circle cx="45" cy="68" r="3" fill="#333"/>
+                    <circle cx="55" cy="70" r="3" fill="#333"/>
+                    <rect x="48" y="5" width="6" height="25" fill="#A68B7C" stroke="#5D4037" stroke-width="1"/>
+                    <rect x="28" y="18" width="44" height="5" rx="2" fill="#5D4037"/>
+                </svg>
+            </div>
+        </div>
 
         <div class="text-center space-y-3">
-            <h1 class="text-3xl font-black text-[#5D4037]">2026 手搖成癮日記 🧋</h1>
+            <div class="flex items-center justify-center gap-3 group">
+                <h1 id="mainTitle" class="text-3xl font-black text-[#5D4037]">2026 手搖成癮日記 🧋</h1>
+                <button onclick="editTitle()" class="opacity-30 hover:opacity-100 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#795548" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </button>
+            </div>
             <div class="flex justify-center gap-2">
                 <button onclick="toggleFavStats()" class="border-2 border-[#795548] text-[#795548] px-5 py-1.5 rounded-full text-[10px] font-black active:scale-90">
                     我的最愛店家 🏆
@@ -178,7 +179,6 @@
         </div>
     </div>
 
-    <!-- 彈窗：單日紀錄 -->
     <div id="entryModal" class="modal p-4">
         <div class="bg-white rounded-[40px] w-full max-w-sm overflow-hidden shadow-2xl border-4 border-white">
             <div class="bg-stone-50 p-6 flex justify-between items-center">
@@ -245,9 +245,31 @@
         let drinkData = JSON.parse(localStorage.getItem('drinkData_2026_final_v2')) || {};
         const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
 
+        // --- 標題自定義功能 (放在最上面優先載入) ---
+        const savedTitle = localStorage.getItem('userCustomTitle');
+        if (savedTitle) {
+            window.onload = () => {
+                const titleElement = document.getElementById('mainTitle');
+                if(titleElement) titleElement.innerText = savedTitle;
+                document.title = savedTitle;
+            };
+        }
+
+        function editTitle() {
+            const titleElement = document.getElementById('mainTitle');
+            const currentTitle = titleElement ? titleElement.innerText : "2026 手搖成癮日記 🧋";
+            const newTitle = prompt("想換個什麼標題呢？", currentTitle);
+            if (newTitle !== null && newTitle.trim() !== "") {
+                if(titleElement) titleElement.innerText = newTitle;
+                document.title = newTitle;
+                localStorage.setItem('userCustomTitle', newTitle);
+            }
+        }
+
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             const title = document.getElementById('currentMonthYear');
+            if(!grid || !title) return;
             grid.innerHTML = '';
             title.innerText = `${year}年 ${monthNames[currentMonth]}`;
             const firstDay = new Date(year, currentMonth, 1).getDay();
@@ -284,23 +306,32 @@
                     if (date.startsWith(mPrefix)) { mTotal += price; mCups++; }
                 });
             });
-            document.getElementById('monthTotal').innerText = mTotal.toLocaleString();
-            document.getElementById('monthCups').innerText = mCups;
-            document.getElementById('yearTotal').innerText = yTotal.toLocaleString();
-            document.getElementById('yearCups').innerText = yCups;
+            const mTotalEl = document.getElementById('monthTotal');
+            const mCupsEl = document.getElementById('monthCups');
+            const yTotalEl = document.getElementById('yearTotal');
+            const yCupsEl = document.getElementById('yearCups');
+            if(mTotalEl) mTotalEl.innerText = mTotal.toLocaleString();
+            if(mCupsEl) mCupsEl.innerText = mCups;
+            if(yTotalEl) yTotalEl.innerText = yTotal.toLocaleString();
+            if(yCupsEl) yCupsEl.innerText = yCups;
         }
 
         function openModal(date) {
-            document.getElementById('selectedDate').value = date;
-            document.getElementById('modalTitle').innerText = date.replace(/-/g, ' / ');
-            hideDrinkForm(); renderExistingDrinks();
+            const selectedDateEl = document.getElementById('selectedDate');
+            const modalTitleEl = document.getElementById('modalTitle');
+            if(selectedDateEl) selectedDateEl.value = date;
+            if(modalTitleEl) modalTitleEl.innerText = date.replace(/-/g, ' / ');
+            hideDrinkForm(); 
+            renderExistingDrinks();
             document.getElementById('entryModal').style.display = 'flex';
         }
 
         function closeModal() { document.getElementById('entryModal').style.display = 'none'; }
 
         function renderExistingDrinks() {
-            const date = document.getElementById('selectedDate').value;
+            const dateInput = document.getElementById('selectedDate');
+            if(!dateInput) return;
+            const date = dateInput.value;
             const container = document.getElementById('existingDrinksContainer');
             const drinks = drinkData[date] || [];
             container.innerHTML = drinks.map((drink, index) => `
@@ -312,45 +343,61 @@
                     </div>
                     <button onclick="deleteDrink(${index})" class="text-red-200 text-[10px] font-black p-2">刪除</button>
                 </div>`).join('');
-            document.getElementById('addNewDrinkBtn').style.display = (drinks.length >= 2) ? 'none' : 'block';
+            const addBtn = document.getElementById('addNewDrinkBtn');
+            if(addBtn) addBtn.style.display = (drinks.length >= 2) ? 'none' : 'block';
         }
 
         function showDrinkForm() {
-            document.getElementById('drinkForm').reset();
+            const form = document.getElementById('drinkForm');
+            if(!form) return;
+            form.reset();
             document.querySelectorAll('.radio-label span').forEach(s => s.classList.remove('bg-[#795548]', 'text-white'));
-            document.getElementById('drinkForm').classList.remove('hidden');
-            document.getElementById('addNewDrinkBtn').style.display = 'none';
+            form.classList.remove('hidden');
+            const addBtn = document.getElementById('addNewDrinkBtn');
+            if(addBtn) addBtn.style.display = 'none';
         }
 
-        function hideDrinkForm() { document.getElementById('drinkForm').classList.add('hidden'); renderExistingDrinks(); }
+        function hideDrinkForm() { 
+            const form = document.getElementById('drinkForm');
+            if(form) form.classList.add('hidden'); 
+            renderExistingDrinks(); 
+        }
 
         function deleteDrink(index) {
             const date = document.getElementById('selectedDate').value;
             drinkData[date].splice(index, 1);
             if (drinkData[date].length === 0) delete drinkData[date];
             localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(drinkData));
-            renderCalendar(); renderExistingDrinks();
+            renderCalendar(); 
+            renderExistingDrinks();
         }
 
-        document.getElementById('drinkForm').onsubmit = (e) => {
-            e.preventDefault();
-            const date = document.getElementById('selectedDate').value;
-            const newDrink = {
-                shop: document.getElementById('shopName').value,
-                item: document.getElementById('itemName').value,
-                price: document.getElementById('price').value,
-                ice: document.querySelector('input[name="ice"]:checked').value,
-                sugar: document.querySelector('input[name="sugar"]:checked').value
+        const drinkForm = document.getElementById('drinkForm');
+        if(drinkForm) {
+            drinkForm.onsubmit = (e) => {
+                e.preventDefault();
+                const date = document.getElementById('selectedDate').value;
+                const iceChecked = document.querySelector('input[name="ice"]:checked');
+                const sugarChecked = document.querySelector('input[name="sugar"]:checked');
+                const newDrink = {
+                    shop: document.getElementById('shopName').value,
+                    item: document.getElementById('itemName').value,
+                    price: document.getElementById('price').value,
+                    ice: iceChecked ? iceChecked.value : "正常",
+                    sugar: sugarChecked ? sugarChecked.value : "正常"
+                };
+                if (!drinkData[date]) drinkData[date] = [];
+                drinkData[date].push(newDrink);
+                localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(drinkData));
+                renderCalendar(); 
+                hideDrinkForm();
             };
-            if (!drinkData[date]) drinkData[date] = [];
-            drinkData[date].push(newDrink);
-            localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(drinkData));
-            renderCalendar(); hideDrinkForm();
-        };
+        }
 
         function toggleStats() {
             const m = document.getElementById('statsModal');
-            if (m.style.display === 'flex') m.style.display = 'none'; else { renderStats(); m.style.display = 'flex'; }
+            if (m.style.display === 'flex') m.style.display = 'none'; 
+            else { renderStats(); m.style.display = 'flex'; }
         }
 
         function renderStats() {
@@ -367,7 +414,8 @@
 
         function toggleFavStats() {
             const m = document.getElementById('favModal');
-            if (m.style.display === 'flex') m.style.display = 'none'; else { renderFavStats(); m.style.display = 'flex'; }
+            if (m.style.display === 'flex') m.style.display = 'none'; 
+            else { renderFavStats(); m.style.display = 'flex'; }
         }
 
         function renderFavStats() {
@@ -390,12 +438,12 @@
             }
         });
 
-        document.getElementById('prevMonth').onclick = () => { if (currentMonth > 0) { currentMonth--; renderCalendar(); } };
-        document.getElementById('nextMonth').onclick = () => { if (currentMonth < 11) { currentMonth++; renderCalendar(); } };
+        const prevBtn = document.getElementById('prevMonth');
+        const nextBtn = document.getElementById('nextMonth');
+        if(prevBtn) prevBtn.onclick = () => { if (currentMonth > 0) { currentMonth--; renderCalendar(); } };
+        if(nextBtn) nextBtn.onclick = () => { if (currentMonth < 11) { currentMonth++; renderCalendar(); } };
         
         renderCalendar();
     </script>
 </body>
 </html>
-
-
