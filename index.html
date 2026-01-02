@@ -3,19 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="手搖日記">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#FFFBF5">
-
     <link rel="apple-touch-icon" href="IMG_1586.jpeg">
-
-    <title>2026 手搖成癮日記</title>
+    <title>手搖成癮日記</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
-    
     <style>
         :root {
             --color-deep-coffee: #5D4037;
@@ -25,172 +19,122 @@
             --color-cream: #F5EBE0;
             --color-paper: #FFFBF5;
         }
-
         body {
             font-family: 'Quicksand', 'Noto Sans TC', sans-serif;
             background-color: var(--color-paper);
             color: var(--color-deep-coffee);
             font-weight: 700;
             -webkit-tap-highlight-color: transparent;
-            overscroll-behavior: none;
-            padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
         }
-
-        .calendar-card {
-            background-color: white;
-            border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(121, 85, 72, 0.05);
-        }
-
-        .day-cell {
-            aspect-ratio: 1 / 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-            border-radius: 14px;
-            position: relative;
-        }
-
-        .day-cell.today-marker {
-            background-color: var(--color-cream);
-        }
-
-        .dots-container {
-            position: absolute;
-            top: 15%;
-            display: flex;
-            gap: 2px;
-        }
-
-        .record-dot {
-            width: 4px;
-            height: 4px;
-            background-color: var(--color-coffee);
-            border-radius: 50%;
-        }
-
-        .modal {
-            display: none; 
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(93, 64, 55, 0.3);
-            backdrop-filter: blur(12px);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--color-coffee), var(--color-deep-coffee));
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-        }
-
-        @media (max-width: 380px) {
-            .options-grid { grid-template-columns: repeat(3, 1fr); }
-        }
-
-        .radio-label input:checked + span {
-            background-color: var(--color-coffee);
-            color: white;
-        }
+        .calendar-card { background-color: white; border-radius: 30px; box-shadow: 0 10px 30px rgba(121, 85, 72, 0.05); }
+        .day-cell { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 14px; position: relative; }
+        .day-cell.today-marker { background-color: var(--color-cream); }
+        .dots-container { position: absolute; top: 15%; display: flex; gap: 2px; }
+        .record-dot { width: 4px; height: 4px; background-color: var(--color-coffee); border-radius: 50%; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(93, 64, 55, 0.3); backdrop-filter: blur(12px); z-index: 1000; align-items: center; justify-content: center; }
+        .btn-primary { background: linear-gradient(135deg, var(--color-coffee), var(--color-deep-coffee)); }
+        .options-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+        .radio-label input:checked + span { background-color: var(--color-coffee); color: white; }
+        .nav-active { color: var(--color-coffee) !important; }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen">
+<body class="p-4 md:p-8 min-h-screen pb-24">
 
-    <div class="max-w-md mx-auto space-y-6 pt-4">
-        <div class="flex justify-center pt-4">
-            <div class="relative w-32 h-32">
+    <div class="max-w-md mx-auto text-center py-4">
+        <div class="flex justify-center mb-2">
+            <div class="w-16 h-16">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <path d="M30 20 L70 20 L65 85 C64 92 36 92 35 85 Z" fill="#FFFFFF" stroke="#5D4037" stroke-width="3"/>
                     <path d="M33 40 L67 40 L65 83 C64 88 36 88 35 83 Z" fill="#D7CCC8"/>
-                    <circle cx="40" cy="75" r="3" fill="#333"/>
-                    <circle cx="50" cy="78" r="3" fill="#333"/>
-                    <circle cx="60" cy="75" r="3" fill="#333"/>
-                    <circle cx="45" cy="68" r="3" fill="#333"/>
-                    <circle cx="55" cy="70" r="3" fill="#333"/>
                     <rect x="48" y="5" width="6" height="25" fill="#A68B7C" stroke="#5D4037" stroke-width="1"/>
                     <rect x="28" y="18" width="44" height="5" rx="2" fill="#5D4037"/>
                 </svg>
             </div>
         </div>
-
-        <div class="text-center space-y-3">
-            <div class="flex items-center justify-center gap-3 group">
-                <h1 id="mainTitle" class="text-3xl font-black text-[#5D4037]">2026 手搖成癮日記 🧋</h1>
-                <button onclick="editTitle()" class="opacity-30 hover:opacity-100 transition-opacity">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#795548" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                </button>
-            </div>
-            <div class="flex justify-center gap-2">
-                <button onclick="toggleFavStats()" class="border-2 border-[#795548] text-[#795548] px-5 py-1.5 rounded-full text-[10px] font-black active:scale-90">
-                    我的最愛店家 🏆
-                </button>
-            </div>
+        <div class="flex items-center justify-center gap-3 group">
+            <h1 id="mainTitle" class="text-2xl font-black text-[#5D4037]">2026 手搖成癮日記 🧋</h1>
+            <button onclick="editTitle()" class="opacity-30 hover:opacity-100 transition-opacity">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#795548" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            </button>
         </div>
+    </div>
 
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
-                <p class="text-[9px] text-stone-300 font-black mb-1 uppercase tracking-wider">本月金額</p>
-                <p class="text-xl font-black text-[#795548]">$ <span id="monthTotal">0</span></p>
-            </div>
-            <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
-                <p class="text-[9px] text-stone-300 font-black mb-1 uppercase tracking-wider">本月杯數</p>
-                <p class="text-xl font-black text-[#795548]"><span id="monthCups">0</span> 杯</p>
-            </div>
-            <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
-                <p class="text-[9px] text-stone-300 font-black mb-1 uppercase tracking-wider">年度金額</p>
-                <p class="text-xl font-black text-[#A68B7C]">$ <span id="yearTotal">0</span></p>
-            </div>
-            <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
-                <p class="text-[9px] text-stone-300 font-black mb-1 uppercase tracking-wider">年度杯數</p>
-                <p class="text-xl font-black text-[#A68B7C]"><span id="yearCups">0</span> 杯</p>
-            </div>
-        </div>
-
-        <div class="calendar-card overflow-hidden">
-            <div class="flex items-center justify-between p-5 border-b border-stone-50">
-                <button id="prevMonth" class="w-12 h-12 flex items-center justify-center font-black text-[#795548]">◀</button>
-                <h2 id="currentMonthYear" class="text-lg font-black text-[#5D4037]">2026年 1月</h2>
-                <button id="nextMonth" class="w-12 h-12 flex items-center justify-center font-black text-[#795548]">▶</button>
-            </div>
-            <div class="p-5">
-                <div class="grid grid-cols-7 mb-3 text-center text-[9px] font-black text-stone-200">
-                    <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+    <div class="max-w-md mx-auto">
+        <section id="page-calendar" class="page-content space-y-6">
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
+                    <p class="text-[9px] text-stone-300 font-black mb-1 uppercase">本月金額</p>
+                    <p class="text-xl font-black text-[#795548]">$ <span id="monthTotal">0</span></p>
                 </div>
-                <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
+                    <p class="text-[9px] text-stone-300 font-black mb-1 uppercase">本月杯數</p>
+                    <p class="text-xl font-black text-[#795548]"><span id="monthCups">0</span> 杯</p>
+                </div>
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
+                    <p class="text-[9px] text-stone-300 font-black mb-1 uppercase">年度金額</p>
+                    <p class="text-xl font-black text-[#A68B7C]">$ <span id="yearTotal">0</span></p>
+                </div>
+                <div class="bg-white p-4 rounded-3xl shadow-sm border border-stone-50 text-center">
+                    <p class="text-[9px] text-stone-300 font-black mb-1 uppercase">年度杯數</p>
+                    <p class="text-xl font-black text-[#A68B7C]"><span id="yearCups">0</span> 杯</p>
+                </div>
             </div>
-            <div class="p-5 bg-stone-50/30 space-y-3">
-    <button onclick="toggleStats()" class="w-full py-4 btn-primary text-white rounded-2xl font-black shadow-lg active:scale-95 transition-all">
-        查看日記清單 📖
-    </button>
-    
-    <div class="grid grid-cols-2 gap-3">
-        <button onclick="exportData()" class="py-3 bg-white border-2 border-[#D7CCC8] text-[#795548] rounded-xl font-black text-[10px] shadow-sm active:scale-95 transition-all">
-            📤 備份日記
-        </button>
-        <button onclick="importData()" class="py-3 bg-white border-2 border-[#D7CCC8] text-[#795548] rounded-xl font-black text-[10px] shadow-sm active:scale-95 transition-all">
-            📥 還原日記
-        </button>
-    </div>
-    
-    <button onclick="clearData()" class="w-full py-2 text-stone-300 text-[10px] font-black hover:text-red-300 transition-colors">
-        清空所有數據
-    </button>
+            <div class="calendar-card overflow-hidden">
+                <div class="flex items-center justify-between p-5 border-b border-stone-50">
+                    <button id="prevMonth" class="w-10 h-10 font-black text-[#795548]">◀</button>
+                    <h2 id="currentMonthYear" class="text-lg font-black text-[#5D4037]">2026年 1月</h2>
+                    <button id="nextMonth" class="w-10 h-10 font-black text-[#795548]">▶</button>
+                </div>
+                <div class="p-5">
+                    <div class="grid grid-cols-7 mb-3 text-center text-[9px] font-black text-stone-200">
+                        <div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div>
+                    </div>
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
+                </div>
+            </div>
+        </section>
 
-    <input type="file" id="fileInput" class="hidden" accept=".json">
-</div>
+        <section id="page-stats" class="page-content hidden space-y-4">
+            <h3 class="font-black text-[#5D4037] px-2 pt-4">店家分析 🏆</h3>
+            <div id="favContent" class="space-y-3 pb-8"></div>
+        </section>
 
-        </div>
+        <section id="page-wishlist" class="page-content hidden space-y-4">
+            <h3 class="font-black text-[#5D4037] px-2 pt-4">歷史日記 📖</h3>
+            <div id="statsContent" class="space-y-3 pb-8"></div>
+        </section>
+
+        <section id="page-settings" class="page-content hidden space-y-6">
+            <h3 class="font-black text-[#5D4037] px-2 pt-4">系統設定 ⚙️</h3>
+            <div class="bg-white p-6 rounded-[30px] shadow-sm border border-stone-50 space-y-4">
+                <button onclick="exportData()" class="w-full py-4 bg-stone-50 text-[#795548] rounded-2xl font-black text-sm flex items-center justify-center gap-2">📤 備份日記數據</button>
+                <button onclick="importData()" class="w-full py-4 bg-stone-50 text-[#795548] rounded-2xl font-black text-sm flex items-center justify-center gap-2">📥 還原日記數據</button>
+                <hr class="border-stone-100">
+                <button onclick="clearData()" class="w-full py-2 text-red-200 text-xs font-black">清空所有數據</button>
+            </div>
+            <input type="file" id="fileInput" class="hidden" accept=".json">
+        </section>
     </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-100 flex justify-around items-center pt-3 pb-8 px-2 z-[100] shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+        <button onclick="switchTab('calendar')" class="nav-btn flex flex-col items-center gap-1 nav-active" data-tab="calendar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span class="text-[10px] font-black">消費清單</span>
+        </button>
+        <button onclick="switchTab('stats')" class="nav-btn flex flex-col items-center gap-1 text-stone-300" data-tab="stats">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+            <span class="text-[10px] font-black">財務報表</span>
+        </button>
+        <button onclick="switchTab('wishlist')" class="nav-btn flex flex-col items-center gap-1 text-stone-300" data-tab="wishlist">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+            <span class="text-[10px] font-black">歷史紀錄</span>
+        </button>
+        <button onclick="switchTab('settings')" class="nav-btn flex flex-col items-center gap-1 text-stone-300" data-tab="settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span class="text-[10px] font-black">設定</span>
+        </button>
+    </nav>
 
     <div id="entryModal" class="modal p-4">
         <div class="bg-white rounded-[40px] w-full max-w-sm overflow-hidden shadow-2xl border-4 border-white">
@@ -201,17 +145,13 @@
             <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                 <input type="hidden" id="selectedDate">
                 <div id="existingDrinksContainer" class="space-y-3"></div>
-                <button id="addNewDrinkBtn" onclick="showDrinkForm()" class="w-full py-5 border-2 border-dashed border-[#D7CCC8] text-[#A68B7C] rounded-2xl font-black text-xs">
-                    + 新增紀錄 (最多2杯)
-                </button>
-
+                <button id="addNewDrinkBtn" onclick="showDrinkForm()" class="w-full py-5 border-2 border-dashed border-[#D7CCC8] text-[#A68B7C] rounded-2xl font-black text-xs">+ 新增紀錄 (最多2杯)</button>
                 <form id="drinkForm" class="hidden space-y-4 bg-stone-50/50 p-5 rounded-3xl border border-stone-100">
                     <div class="grid grid-cols-2 gap-3">
                         <input type="text" id="shopName" placeholder="店名" required class="w-full p-4 rounded-xl shadow-sm text-sm outline-none">
                         <input type="number" id="price" placeholder="金額" class="w-full p-4 rounded-xl shadow-sm text-sm outline-none">
                     </div>
                     <input type="text" id="itemName" placeholder="飲料名稱" required class="w-full p-4 rounded-xl shadow-sm text-sm outline-none">
-                    
                     <div>
                         <label class="block text-[10px] font-black text-stone-300 mb-2 ml-1">冰塊</label>
                         <div class="options-grid">
@@ -219,87 +159,73 @@
                             <label class="radio-label"><input type="radio" name="ice" value="少冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">少冰</span></label>
                             <label class="radio-label"><input type="radio" name="ice" value="微冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">微冰</span></label>
                             <label class="radio-label"><input type="radio" name="ice" value="去冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">去冰</span></label>
-                            <label class="radio-label"><input type="radio" name="ice" value="常溫" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">常溫</span></label>
-                            <label class="radio-label"><input type="radio" name="ice" value="溫" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">溫</span></label>
-                            <label class="radio-label"><input type="radio" name="ice" value="熱" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">熱</span></label>
-                            <label class="radio-label"><input type="radio" name="ice" value="固定" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">固定</span></label>
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-[10px] font-black text-stone-300 mb-2 ml-1">甜度</label>
                         <div class="options-grid">
                             <label class="radio-label"><input type="radio" name="sugar" value="全糖" class="hidden" required><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">全糖</span></label>
-                            <label class="radio-label"><input type="radio" name="sugar" value="少糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">少糖</span></label>
                             <label class="radio-label"><input type="radio" name="sugar" value="半糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">半糖</span></label>
                             <label class="radio-label"><input type="radio" name="sugar" value="微糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">微糖</span></label>
-                            <label class="radio-label"><input type="radio" name="sugar" value="一分糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">一分糖</span></label>
                             <label class="radio-label"><input type="radio" name="sugar" value="無糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">無糖</span></label>
-                            <label class="radio-label"><input type="radio" name="sugar" value="固定" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">固定</span></label>
                         </div>
                     </div>
-
-                    <div class="flex gap-2 pt-2">
-                        <button type="button" onclick="hideDrinkForm()" class="flex-1 py-4 text-stone-400 font-black text-[10px]">取消</button>
-                        <button type="submit" class="flex-[2] py-4 btn-primary text-white rounded-xl font-black text-[11px] shadow-lg">儲存 🥤</button>
-                    </div>
+                    <div class="flex gap-2 pt-2"><button type="button" onclick="hideDrinkForm()" class="flex-1 py-4 text-stone-400 font-black text-[10px]">取消</button><button type="submit" class="flex-[2] py-4 btn-primary text-white rounded-xl font-black text-[11px] shadow-lg">儲存 🥤</button></div>
                 </form>
             </div>
         </div>
     </div>
 
-    <div id="statsModal" class="modal p-4"><div class="bg-white rounded-[40px] w-full max-w-sm h-[75vh] flex flex-col shadow-2xl overflow-hidden border-4 border-white"><div class="bg-stone-50 p-6 flex justify-between items-center"><h3 class="text-lg font-black">日記清單 📖</h3><button onclick="toggleStats()" class="w-10 h-10 flex items-center justify-center text-2xl">×</button></div><div id="statsContent" class="p-6 overflow-y-auto flex-1 space-y-3 bg-stone-50/20"></div></div></div>
-    <div id="favModal" class="modal p-4"><div class="bg-white rounded-[40px] w-full max-w-sm border-4 border-white shadow-2xl overflow-hidden"><div class="bg-stone-50 p-6 flex justify-between items-center"><h3 class="text-lg font-black">店家分析 🏆</h3><button onclick="toggleFavStats()" class="w-10 h-10 flex items-center justify-center text-2xl">×</button></div><div id="favContent" class="p-6 space-y-3 bg-stone-50/20 max-h-[50vh] overflow-y-auto"></div></div></div>
-
     <script>
-        const now = new Date();
         const year = 2026;
-        let currentMonth = now.getMonth();
+        let currentMonth = new Date().getMonth();
         let drinkData = JSON.parse(localStorage.getItem('drinkData_2026_final_v2')) || {};
         const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
 
-        // --- 標題自定義功能 (放在最上面優先載入) ---
-        const savedTitle = localStorage.getItem('userCustomTitle');
-        if (savedTitle) {
-            window.onload = () => {
-                const titleElement = document.getElementById('mainTitle');
-                if(titleElement) titleElement.innerText = savedTitle;
-                document.title = savedTitle;
-            };
-        }
+        window.onload = () => {
+            const savedTitle = localStorage.getItem('userCustomTitle');
+            if (savedTitle) document.getElementById('mainTitle').innerText = savedTitle;
+            renderCalendar();
+        };
 
         function editTitle() {
-            const titleElement = document.getElementById('mainTitle');
-            const currentTitle = titleElement ? titleElement.innerText : "2026 手搖成癮日記 🧋";
-            const newTitle = prompt("想換個什麼標題呢？", currentTitle);
-            if (newTitle !== null && newTitle.trim() !== "") {
-                if(titleElement) titleElement.innerText = newTitle;
-                document.title = newTitle;
+            const newTitle = prompt("想換個什麼標題呢？", document.getElementById('mainTitle').innerText);
+            if (newTitle) {
+                document.getElementById('mainTitle').innerText = newTitle;
                 localStorage.setItem('userCustomTitle', newTitle);
             }
         }
 
+        function switchTab(tabId) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`page-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('nav-active', 'text-[#795548]');
+                btn.classList.add('text-stone-300');
+            });
+            const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
+            activeBtn.classList.add('nav-active', 'text-[#795548]');
+            activeBtn.classList.remove('text-stone-300');
+            if (tabId === 'stats') renderFavStats();
+            if (tabId === 'wishlist') renderStats();
+        }
+
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
-            const title = document.getElementById('currentMonthYear');
-            if(!grid || !title) return;
             grid.innerHTML = '';
-            title.innerText = `${year}年 ${monthNames[currentMonth]}`;
+            document.getElementById('currentMonthYear').innerText = `${year}年 ${monthNames[currentMonth]}`;
             const firstDay = new Date(year, currentMonth, 1).getDay();
             const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
-            
-            for (let i = 0; i < firstDay; i++) { grid.innerHTML += '<div></div>'; }
+            const now = new Date();
+            for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div></div>';
             for (let d = 1; d <= daysInMonth; d++) {
                 const dateKey = `${year}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                 const isToday = (now.getFullYear() === year && now.getMonth() === currentMonth && d === now.getDate());
                 const cell = document.createElement('div');
                 cell.className = `day-cell text-[#5D4037] text-base font-black ${isToday ? 'today-marker' : ''}`;
                 if (drinkData[dateKey]) {
-                    const dots = document.createElement('div');
-                    dots.className = 'dots-container';
-                    drinkData[dateKey].forEach(() => {
-                        const dot = document.createElement('div'); dot.className = 'record-dot'; dots.appendChild(dot);
-                    });
+                    const dots = document.createElement('div'); dots.className = 'dots-container';
+                    drinkData[dateKey].forEach(() => { const dot = document.createElement('div'); dot.className = 'record-dot'; dots.appendChild(dot); });
                     cell.appendChild(dots);
                 }
                 cell.innerHTML += `<span>${d}</span>`;
@@ -314,135 +240,93 @@
             const mPrefix = `${year}-${String(currentMonth + 1).padStart(2, '0')}`;
             Object.keys(drinkData).forEach(date => {
                 drinkData[date].forEach(d => {
-                    const price = parseFloat(d.price) || 0;
-                    yTotal += price; yCups++;
-                    if (date.startsWith(mPrefix)) { mTotal += price; mCups++; }
+                    const p = parseFloat(d.price) || 0;
+                    yTotal += p; yCups++;
+                    if (date.startsWith(mPrefix)) { mTotal += p; mCups++; }
                 });
             });
-            const mTotalEl = document.getElementById('monthTotal');
-            const mCupsEl = document.getElementById('monthCups');
-            const yTotalEl = document.getElementById('yearTotal');
-            const yCupsEl = document.getElementById('yearCups');
-            if(mTotalEl) mTotalEl.innerText = mTotal.toLocaleString();
-            if(mCupsEl) mCupsEl.innerText = mCups;
-            if(yTotalEl) yTotalEl.innerText = yTotal.toLocaleString();
-            if(yCupsEl) yCupsEl.innerText = yCups;
+            document.getElementById('monthTotal').innerText = mTotal.toLocaleString();
+            document.getElementById('monthCups').innerText = mCups;
+            document.getElementById('yearTotal').innerText = yTotal.toLocaleString();
+            document.getElementById('yearCups').innerText = yCups;
         }
 
         function openModal(date) {
-            const selectedDateEl = document.getElementById('selectedDate');
-            const modalTitleEl = document.getElementById('modalTitle');
-            if(selectedDateEl) selectedDateEl.value = date;
-            if(modalTitleEl) modalTitleEl.innerText = date.replace(/-/g, ' / ');
-            hideDrinkForm(); 
-            renderExistingDrinks();
+            document.getElementById('selectedDate').value = date;
+            document.getElementById('modalTitle').innerText = date.replace(/-/g, ' / ');
+            hideDrinkForm(); renderExistingDrinks();
             document.getElementById('entryModal').style.display = 'flex';
         }
-
         function closeModal() { document.getElementById('entryModal').style.display = 'none'; }
+        function showDrinkForm() { document.getElementById('drinkForm').classList.remove('hidden'); document.getElementById('addNewDrinkBtn').style.display = 'none'; }
+        function hideDrinkForm() { document.getElementById('drinkForm').classList.add('hidden'); renderExistingDrinks(); }
 
         function renderExistingDrinks() {
-            const dateInput = document.getElementById('selectedDate');
-            if(!dateInput) return;
-            const date = dateInput.value;
-            const container = document.getElementById('existingDrinksContainer');
-            const drinks = drinkData[date] || [];
-            container.innerHTML = drinks.map((drink, index) => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-stone-100 flex justify-between items-center">
-                    <div>
-                        <p class="text-[9px] text-stone-300 font-black uppercase tracking-tight">${drink.shop}</p>
-                        <p class="font-black text-[#5D4037] text-sm">${drink.item}</p>
-                        <p class="text-[9px] text-[#A68B7C] font-black mt-1">${drink.ice} / ${drink.sugar} • $${drink.price || 0}</p>
-                    </div>
-                    <button onclick="deleteDrink(${index})" class="text-red-200 text-[10px] font-black p-2">刪除</button>
+            const drinks = drinkData[document.getElementById('selectedDate').value] || [];
+            document.getElementById('existingDrinksContainer').innerHTML = drinks.map((d, i) => `
+                <div class="bg-white p-4 rounded-2xl border border-stone-100 flex justify-between items-center shadow-sm">
+                    <div><p class="text-[9px] text-stone-300 font-black tracking-tight">${d.shop}</p><p class="font-black text-sm">${d.item}</p><p class="text-[9px] text-[#A68B7C] font-black mt-1">${d.ice} / ${d.sugar} • $${d.price || 0}</p></div>
+                    <button onclick="deleteDrink(${i})" class="text-red-200 text-[10px] font-black p-2">刪除</button>
                 </div>`).join('');
-            const addBtn = document.getElementById('addNewDrinkBtn');
-            if(addBtn) addBtn.style.display = (drinks.length >= 2) ? 'none' : 'block';
+            document.getElementById('addNewDrinkBtn').style.display = drinks.length >= 2 ? 'none' : 'block';
         }
 
-        function showDrinkForm() {
-            const form = document.getElementById('drinkForm');
-            if(!form) return;
-            form.reset();
-            document.querySelectorAll('.radio-label span').forEach(s => s.classList.remove('bg-[#795548]', 'text-white'));
-            form.classList.remove('hidden');
-            const addBtn = document.getElementById('addNewDrinkBtn');
-            if(addBtn) addBtn.style.display = 'none';
-        }
-
-        function hideDrinkForm() { 
-            const form = document.getElementById('drinkForm');
-            if(form) form.classList.add('hidden'); 
-            renderExistingDrinks(); 
-        }
+        document.getElementById('drinkForm').onsubmit = (e) => {
+            e.preventDefault();
+            const date = document.getElementById('selectedDate').value;
+            const ice = document.querySelector('input[name="ice"]:checked')?.value || "正常";
+            const sugar = document.querySelector('input[name="sugar"]:checked')?.value || "正常";
+            if (!drinkData[date]) drinkData[date] = [];
+            drinkData[date].push({ shop: document.getElementById('shopName').value, item: document.getElementById('itemName').value, price: document.getElementById('price').value, ice, sugar });
+            localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(drinkData));
+            renderCalendar(); hideDrinkForm();
+        };
 
         function deleteDrink(index) {
             const date = document.getElementById('selectedDate').value;
             drinkData[date].splice(index, 1);
-            if (drinkData[date].length === 0) delete drinkData[date];
+            if (!drinkData[date].length) delete drinkData[date];
             localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(drinkData));
-            renderCalendar(); 
-            renderExistingDrinks();
-        }
-
-        const drinkForm = document.getElementById('drinkForm');
-        if(drinkForm) {
-            drinkForm.onsubmit = (e) => {
-                e.preventDefault();
-                const date = document.getElementById('selectedDate').value;
-                const iceChecked = document.querySelector('input[name="ice"]:checked');
-                const sugarChecked = document.querySelector('input[name="sugar"]:checked');
-                const newDrink = {
-                    shop: document.getElementById('shopName').value,
-                    item: document.getElementById('itemName').value,
-                    price: document.getElementById('price').value,
-                    ice: iceChecked ? iceChecked.value : "正常",
-                    sugar: sugarChecked ? sugarChecked.value : "正常"
-                };
-                if (!drinkData[date]) drinkData[date] = [];
-                drinkData[date].push(newDrink);
-                localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(drinkData));
-                renderCalendar(); 
-                hideDrinkForm();
-            };
-        }
-
-        function toggleStats() {
-            const m = document.getElementById('statsModal');
-            if (m.style.display === 'flex') m.style.display = 'none'; 
-            else { renderStats(); m.style.display = 'flex'; }
-        }
-
-        function renderStats() {
-            const container = document.getElementById('statsContent');
-            const dates = Object.keys(drinkData).sort().reverse();
-            if (!dates.length) { container.innerHTML = '<p class="text-center py-10 text-stone-300 text-xs font-black">尚無紀錄 🧋</p>'; return; }
-            container.innerHTML = dates.map(d => drinkData[d].map(drink => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm">
-                    <div class="flex justify-between text-[9px] font-black text-stone-200 mb-1"><span>${d}</span><span>$${drink.price || 0}</span></div>
-                    <p class="font-black text-[#5D4037] text-sm">${drink.item}</p>
-                    <p class="text-[10px] text-stone-400 mt-1">${drink.shop} • ${drink.ice} / ${drink.sugar}</p>
-                </div>`).join('')).join('');
-        }
-
-        function toggleFavStats() {
-            const m = document.getElementById('favModal');
-            if (m.style.display === 'flex') m.style.display = 'none'; 
-            else { renderFavStats(); m.style.display = 'flex'; }
+            renderCalendar(); renderExistingDrinks();
         }
 
         function renderFavStats() {
-            const container = document.getElementById('favContent');
-            const stats = {};
-            Object.values(drinkData).flat().forEach(d => { stats[d.shop] = (stats[d.shop] || 0) + 1; });
+            const stats = {}; Object.values(drinkData).flat().forEach(d => { stats[d.shop] = (stats[d.shop] || 0) + 1; });
             const sorted = Object.entries(stats).sort((a,b) => b[1]-a[1]);
-            if (!sorted.length) { container.innerHTML = '<p class="text-center py-10 text-stone-300 text-xs font-black">尚無數據</p>'; return; }
-            container.innerHTML = sorted.map(([name, count], i) => `
-                <div class="bg-white p-5 rounded-xl flex justify-between items-center shadow-sm">
-                    <span class="font-black text-xs text-[#5D4037]">${i+1}. ${name}</span>
-                    <span class="font-black text-[#795548] text-sm">${count} 杯</span>
-                </div>`).join('');
+            document.getElementById('favContent').innerHTML = sorted.map(([n, c], i) => `
+                <div class="bg-white p-5 rounded-2xl flex justify-between items-center shadow-sm"><span class="font-black text-xs">${i+1}. ${n}</span><span class="font-black text-[#795548] text-sm">${c} 杯</span></div>`).join('') || '<p class="text-center py-10 text-stone-300 text-xs font-black">尚無數據</p>';
         }
+
+        function renderStats() {
+            const dates = Object.keys(drinkData).sort().reverse();
+            document.getElementById('statsContent').innerHTML = dates.map(d => drinkData[d].map(drink => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm"><div class="flex justify-between text-[9px] font-black text-stone-200 mb-1"><span>${d}</span><span>$${drink.price || 0}</span></div><p class="font-black text-[#5D4037] text-sm">${drink.item}</p><p class="text-[10px] text-stone-400 mt-1">${drink.shop} • ${drink.ice} / ${drink.sugar}</p></div>`).join('')).join('') || '<p class="text-center py-10 text-stone-300 text-xs font-black">尚無紀錄 🧋</p>';
+        }
+
+        function exportData() {
+            const data = localStorage.getItem('drinkData_2026_final_v2');
+            if (!data) return alert("沒數據可備份");
+            const blob = new Blob([data], { type: 'application/json' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `手搖備份_${new Date().toLocaleDateString()}.json`; a.click();
+        }
+
+        function importData() { document.getElementById('fileInput').click(); }
+        document.getElementById('fileInput').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                if (confirm("確定還原？會蓋掉現有紀錄喔")) {
+                    localStorage.setItem('drinkData_2026_final_v2', ev.target.result);
+                    location.reload();
+                }
+            };
+            reader.readAsText(e.target.files[0]);
+        };
+
+        function clearData() { if (confirm("確定清空？")) { localStorage.removeItem('drinkData_2026_final_v2'); location.reload(); } }
+
+        document.getElementById('prevMonth').onclick = () => { if (currentMonth > 0) { currentMonth--; renderCalendar(); } };
+        document.getElementById('nextMonth').onclick = () => { if (currentMonth < 11) { currentMonth++; renderCalendar(); } };
 
         document.body.addEventListener('change', e => {
             if (e.target.type === 'radio') {
@@ -450,70 +334,6 @@
                 e.target.nextElementSibling.classList.add('bg-[#795548]', 'text-white');
             }
         });
-
-        const prevBtn = document.getElementById('prevMonth');
-        const nextBtn = document.getElementById('nextMonth');
-        if(prevBtn) prevBtn.onclick = () => { if (currentMonth > 0) { currentMonth--; renderCalendar(); } };
-        if(nextBtn) nextBtn.onclick = () => { if (currentMonth < 11) { currentMonth++; renderCalendar(); } };
-        
-        renderCalendar();
-                // --- 備份功能：將 localStorage 資料下載成檔案 ---
-        function exportData() {
-            const data = localStorage.getItem('drinkData_2026_final_v2');
-            if (!data || Object.keys(JSON.parse(data)).length === 0) {
-                alert("目前還沒有紀錄可以備份喔！");
-                return;
-            }
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const date = new Date().toISOString().split('T')[0];
-            a.href = url;
-            a.download = `手搖日記備份_${date}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // --- 還原功能：讀取檔案並存入 localStorage ---
-        function importData() {
-            document.getElementById('fileInput').click();
-        }
-
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (typeof data === 'object' && !Array.isArray(data)) {
-                        if (confirm("確定要還原嗎？這會覆蓋掉目前的紀錄喔！")) {
-                            localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(data));
-                            alert("還原成功！網頁即將重新整理。");
-                            location.reload();
-                        }
-                    } else {
-                        alert("檔案格式不正確，請使用正確的備份檔。");
-                    }
-                } catch (err) {
-                    alert("讀取檔案失敗。");
-                }
-            };
-            reader.readAsText(file);
-        });
-
-        // --- 清空功能 ---
-        function clearData() {
-            if (confirm('確定要清空所有紀錄嗎？此動作無法復原喔！')) {
-                localStorage.removeItem('drinkData_2026_final_v2');
-                location.reload();
-            }
-        }
-
     </script>
 </body>
 </html>
-
