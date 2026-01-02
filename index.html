@@ -288,15 +288,35 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         }
 
         document.getElementById('drinkForm').onsubmit = (e) => {
-            e.preventDefault();
-            const date = document.getElementById('selectedDate').value;
-            const ice = document.querySelector('input[name="ice"]:checked')?.value || "正常";
-            const sugar = document.querySelector('input[name="sugar"]:checked')?.value || "正常";
-            if (!drinkData[date]) drinkData[date] = [];
-            drinkData[date].push({ shop: document.getElementById('shopName').value, item: document.getElementById('itemName').value, price: document.getElementById('price').value, ice, sugar });
-            localStorage.setItem('drinkData_Permanent', JSON.stringify(drinkData));
-            renderCalendar(); hideDrinkForm();
-        };
+    e.preventDefault();
+    const date = document.getElementById('selectedDate').value;
+    const ice = document.querySelector('input[name="ice"]:checked')?.value || "正常";
+    const sugar = document.querySelector('input[name="sugar"]:checked')?.value || "正常";
+    
+    if (!drinkData[date]) drinkData[date] = [];
+    
+    // 1. 儲存資料
+    drinkData[date].push({ 
+        shop: document.getElementById('shopName').value, 
+        item: document.getElementById('itemName').value, 
+        price: document.getElementById('price').value, 
+        ice, 
+        sugar 
+    });
+    
+    localStorage.setItem('drinkData_Permanent', JSON.stringify(drinkData));
+    
+    // 2.  清除表單內容 
+    e.target.reset(); // 清除文字輸入框與 radio 選項
+    
+    // 3.  清除自定義按鈕的顏色 
+    document.querySelectorAll('.radio-label span').forEach(span => {
+        span.classList.remove('bg-[#795548]', 'text-white');
+    });
+
+    renderCalendar(); 
+    hideDrinkForm();
+};
 
         function deleteDrink(index) {
             const date = document.getElementById('selectedDate').value;
