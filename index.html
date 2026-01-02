@@ -168,11 +168,27 @@
                 </div>
                 <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
             </div>
-            <div class="p-5 bg-stone-50/30">
-                <button onclick="toggleStats()" class="w-full py-4 btn-primary text-white rounded-2xl font-black shadow-lg active:scale-95 transition-all">
-                    查看日記清單 📖
-                </button>
-            </div>
+            <div class="p-5 bg-stone-50/30 space-y-3">
+    <button onclick="toggleStats()" class="w-full py-4 btn-primary text-white rounded-2xl font-black shadow-lg active:scale-95 transition-all">
+        查看日記清單 📖
+    </button>
+    
+    <div class="grid grid-cols-2 gap-3">
+        <button onclick="exportData()" class="py-3 bg-white border-2 border-[#D7CCC8] text-[#795548] rounded-xl font-black text-[10px] shadow-sm active:scale-95 transition-all">
+            📤 備份日記
+        </button>
+        <button onclick="importData()" class="py-3 bg-white border-2 border-[#D7CCC8] text-[#795548] rounded-xl font-black text-[10px] shadow-sm active:scale-95 transition-all">
+            📥 還原日記
+        </button>
+    </div>
+    
+    <button onclick="clearData()" class="w-full py-2 text-stone-300 text-[10px] font-black hover:text-red-300 transition-colors">
+        清空所有數據
+    </button>
+
+    <input type="file" id="fileInput" class="hidden" accept=".json">
+</div>
+
         </div>
     </div>
 
@@ -441,6 +457,62 @@
         if(nextBtn) nextBtn.onclick = () => { if (currentMonth < 11) { currentMonth++; renderCalendar(); } };
         
         renderCalendar();
+                // --- 備份功能：將 localStorage 資料下載成檔案 ---
+        function exportData() {
+            const data = localStorage.getItem('drinkData_2026_final_v2');
+            if (!data || Object.keys(JSON.parse(data)).length === 0) {
+                alert("目前還沒有紀錄可以備份喔！");
+                return;
+            }
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const date = new Date().toISOString().split('T')[0];
+            a.href = url;
+            a.download = `手搖日記備份_${date}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- 還原功能：讀取檔案並存入 localStorage ---
+        function importData() {
+            document.getElementById('fileInput').click();
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (typeof data === 'object' && !Array.isArray(data)) {
+                        if (confirm("確定要還原嗎？這會覆蓋掉目前的紀錄喔！")) {
+                            localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(data));
+                            alert("還原成功！網頁即將重新整理。");
+                            location.reload();
+                        }
+                    } else {
+                        alert("檔案格式不正確，請使用正確的備份檔。");
+                    }
+                } catch (err) {
+                    alert("讀取檔案失敗。");
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // --- 清空功能 ---
+        function clearData() {
+            if (confirm('確定要清空所有紀錄嗎？此動作無法復原喔！')) {
+                localStorage.removeItem('drinkData_2026_final_v2');
+                location.reload();
+            }
+        }
+
     </script>
 </body>
 </html>
