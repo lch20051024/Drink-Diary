@@ -238,14 +238,29 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
 
         function updateDashboard() {
             let mTotal = 0, mCups = 0, yTotal = 0, yCups = 0;
-            const mPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-            Object.keys(drinkData).forEach(date => {
-                drinkData[date].forEach(d => {
-                    const p = parseFloat(d.price) || 0;
-                    yTotal += p; yCups++;
-                    if (date.startsWith(mPrefix)) { mTotal += p; mCups++; }
-                });
+    
+    // 重新定義前綴，確保包含當前年份
+    const mPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+    const yPrefix = `${currentYear}-`; 
+
+    Object.keys(drinkData).forEach(date => {
+        // 只有符合「目前年份」的日期才會被算進年度統計
+        if (date.startsWith(yPrefix)) {
+            drinkData[date].forEach(d => {
+                const p = parseFloat(d.price) || 0;
+                
+                // 這裡會正確計算該年份的總和
+                yTotal += p;
+                yCups++;
+
+                // 這裡會正確計算該月份的總和
+                if (date.startsWith(mPrefix)) {
+                    mTotal += p;
+                    mCups++;
+                }
             });
+        }
+    });
             document.getElementById('monthTotal').innerText = mTotal.toLocaleString();
             document.getElementById('monthCups').innerText = mCups;
             document.getElementById('yearTotal').innerText = yTotal.toLocaleString();
