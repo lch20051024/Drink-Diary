@@ -279,7 +279,7 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
             const sugar = document.querySelector('input[name="sugar"]:checked')?.value || "正常";
             if (!drinkData[date]) drinkData[date] = [];
             drinkData[date].push({ shop: document.getElementById('shopName').value, item: document.getElementById('itemName').value, price: document.getElementById('price').value, ice, sugar });
-            localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(drinkData));
+            localStorage.setItem('drinkData_Permanent', JSON.stringify(drinkData));
             renderCalendar(); hideDrinkForm();
         };
 
@@ -287,7 +287,7 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
             const date = document.getElementById('selectedDate').value;
             drinkData[date].splice(index, 1);
             if (!drinkData[date].length) delete drinkData[date];
-            localStorage.setItem('drinkData_2026_final_v2', JSON.stringify(drinkData));
+            localStorage.setItem('drinkData_Permanent', JSON.stringify(drinkData));
             renderCalendar(); renderExistingDrinks();
         }
 
@@ -305,7 +305,7 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         }
 
         function exportData() {
-            const data = localStorage.getItem('drinkData_2026_final_v2');
+            const data = localStorage.getItem('drinkData_Permanent');
             if (!data) return alert("沒數據可備份");
             const blob = new Blob([data], { type: 'application/json' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
@@ -317,14 +317,14 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
             const reader = new FileReader();
             reader.onload = (ev) => {
                 if (confirm("確定還原？會蓋掉現有紀錄喔")) {
-                    localStorage.setItem('drinkData_2026_final_v2', ev.target.result);
+                    localStorage.setItem('drinkData_Permanent', ev.target.result);
                     location.reload();
                 }
             };
             reader.readAsText(e.target.files[0]);
         };
 
-        function clearData() { if (confirm("確定清空？")) { localStorage.removeItem('drinkData_2026_final_v2'); location.reload(); } }
+        function clearData() { if (confirm("確定清空？")) { localStorage.removeItem('drinkData_Permanent'); location.reload(); } }
 
         document.getElementById('prevMonth').onclick = () => { if (currentMonth > 0) { currentMonth--; renderCalendar(); } };
         document.getElementById('nextMonth').onclick = () => { if (currentMonth < 11) { currentMonth++; renderCalendar(); } };
