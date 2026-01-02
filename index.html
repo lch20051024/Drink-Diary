@@ -178,9 +178,9 @@
     </div>
 
     <script>
-        const year = 2026;
-        let currentMonth = new Date().getMonth();
-        let drinkData = JSON.parse(localStorage.getItem('drinkData_2026_final_v2')) || {};
+        let currentYear = new Date().getFullYear(); // 讓年份變動，並自動抓今年
+let currentMonth = new Date().getMonth();
+let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; // 換成永久儲存庫名稱
         const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
 
         window.onload = () => {
