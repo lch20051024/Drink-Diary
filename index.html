@@ -148,21 +148,28 @@
                     <input type="text" id="itemName" placeholder="飲料名稱" required class="w-full p-4 rounded-xl shadow-sm text-sm outline-none">
                     <div>
                         <label class="block text-[10px] font-black text-stone-300 mb-2 ml-1">冰塊</label>
-                        <div class="options-grid">
-                            <label class="radio-label"><input type="radio" name="ice" value="正常" class="hidden" required><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">正常</span></label>
-                            <label class="radio-label"><input type="radio" name="ice" value="少冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">少冰</span></label>
-                            <label class="radio-label"><input type="radio" name="ice" value="微冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">微冰</span></label>
-                            <label class="radio-label"><input type="radio" name="ice" value="去冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">去冰</span></label>
-                        </div>
+                        <div class="options-grid !grid-cols-4">
+    <label class="radio-label"><input type="radio" name="ice" value="正常" class="hidden" required><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">正常</span></label>
+    <label class="radio-label"><input type="radio" name="ice" value="少冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">少冰</span></label>
+    <label class="radio-label"><input type="radio" name="ice" value="微冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">微冰</span></label>
+    <label class="radio-label"><input type="radio" name="ice" value="去冰" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">去冰</span></label>
+    <label class="radio-label"><input type="radio" name="ice" value="常溫" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">完全去冰</span></label>
+    <label class="radio-label"><input type="radio" name="ice" value="溫" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">常溫</span></label>
+    <label class="radio-label"><input type="radio" name="ice" value="熱" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">溫</span></label>
+    <label class="radio-label"><input type="radio" name="ice" value="固定" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">熱</span></label>
+</div>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-stone-300 mb-2 ml-1">甜度</label>
-                        <div class="options-grid">
-                            <label class="radio-label"><input type="radio" name="sugar" value="全糖" class="hidden" required><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">全糖</span></label>
-                            <label class="radio-label"><input type="radio" name="sugar" value="半糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">半糖</span></label>
-                            <label class="radio-label"><input type="radio" name="sugar" value="微糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">微糖</span></label>
-                            <label class="radio-label"><input type="radio" name="sugar" value="無糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">無糖</span></label>
-                        </div>
+                        <div class="options-grid !grid-cols-4">
+    <label class="radio-label"><input type="radio" name="sugar" value="全糖" class="hidden" required><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">全糖</span></label>
+    <label class="radio-label"><input type="radio" name="sugar" value="少糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">九分</span></label>
+    <label class="radio-label"><input type="radio" name="sugar" value="半糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">少糖</span></label>
+    <label class="radio-label"><input type="radio" name="sugar" value="微糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">半糖</span></label>
+    <label class="radio-label"><input type="radio" name="sugar" value="一分糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">微糖</span></label>
+    <label class="radio-label"><input type="radio" name="sugar" value="無糖" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">二分</span></label>
+    <label class="radio-label"><input type="radio" name="sugar" value="固定" class="hidden"><span class="block text-[10px] py-2.5 rounded-lg bg-white shadow-sm text-center border border-transparent">無糖</span></label>
+</div>
                     </div>
                     <div class="flex gap-2 pt-2"><button type="button" onclick="hideDrinkForm()" class="flex-1 py-4 text-stone-400 font-black text-[10px]">取消</button><button type="submit" class="flex-[2] py-4 btn-primary text-white rounded-xl font-black text-[11px] shadow-lg">儲存 🥤</button></div>
                 </form>
