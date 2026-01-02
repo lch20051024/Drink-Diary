@@ -214,14 +214,14 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
-            document.getElementById('currentMonthYear').innerText = `${year}年 ${monthNames[currentMonth]}`;
-            const firstDay = new Date(year, currentMonth, 1).getDay();
-            const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
+            document.getElementById('currentMonthYear').innerText = `${currentYear}年 ${monthNames[currentMonth]}`;
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             const now = new Date();
             for (let i = 0; i < firstDay; i++) grid.innerHTML += '<div></div>';
             for (let d = 1; d <= daysInMonth; d++) {
-                const dateKey = `${year}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                const isToday = (now.getFullYear() === year && now.getMonth() === currentMonth && d === now.getDate());
+                const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const isToday = (now.getFullYear() === currentYear && now.getMonth() === currentMonth && d === now.getDate());
                 const cell = document.createElement('div');
                 cell.className = `day-cell text-[#5D4037] text-base font-black ${isToday ? 'today-marker' : ''}`;
                 if (drinkData[dateKey]) {
@@ -238,7 +238,7 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
 
         function updateDashboard() {
             let mTotal = 0, mCups = 0, yTotal = 0, yCups = 0;
-            const mPrefix = `${year}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const mPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
             Object.keys(drinkData).forEach(date => {
                 drinkData[date].forEach(d => {
                     const p = parseFloat(d.price) || 0;
@@ -326,8 +326,27 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
 
         function clearData() { if (confirm("確定清空？")) { localStorage.removeItem('drinkData_Permanent'); location.reload(); } }
 
-        document.getElementById('prevMonth').onclick = () => { if (currentMonth > 0) { currentMonth--; renderCalendar(); } };
-        document.getElementById('nextMonth').onclick = () => { if (currentMonth < 11) { currentMonth++; renderCalendar(); } };
+        // 往回按的邏輯
+document.getElementById('prevMonth').onclick = () => {
+    if (currentMonth > 0) {
+        currentMonth--;
+    } else {
+        currentMonth = 11;
+        currentYear--; // 如果是 1 月再往回按，年份就會扣 1
+    }
+    renderCalendar();
+};
+
+// 往下按的邏輯
+document.getElementById('nextMonth').onclick = () => {
+    if (currentMonth < 11) {
+        currentMonth++;
+    } else {
+        currentMonth = 0;
+        currentYear++; // 如果是 12 月再往後按，年份就會加 1
+    }
+    renderCalendar();
+};
 
         document.body.addEventListener('change', e => {
             if (e.target.type === 'radio') {
