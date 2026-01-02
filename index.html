@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#5D4037">
     <meta name="apple-mobile-web-app-title" content="手搖日記">
     <link rel="apple-touch-icon" href="IMG_1586.jpeg">
     <title>手搖成癮日記</title>
@@ -20,13 +21,17 @@
             --color-paper: #FFFBF5;
         }
         body {
-            font-family: 'Quicksand', 'Noto Sans TC', sans-serif;
-            background-color: var(--color-paper);
-            color: var(--color-deep-coffee);
-            font-weight: 700;
-            -webkit-tap-highlight-color: transparent;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
+        font-family: 'Quicksand', 'Noto Sans TC', sans-serif;
+        /* 1. 背景色改成深咖啡，讓手機通知欄變色 */
+        background-color: #5D4037; 
+        color: var(--color-deep-coffee);
+        font-weight: 700;
+        -webkit-tap-highlight-color: transparent;
+        /* 2. 讓內容區維持原本的紙張色，並在頂部留出安全距離 */
+        padding-top: env(safe-area-inset-top);
+        background-image: linear-gradient(to bottom, #5D4037 0%, #5D4037 60px, var(--color-paper) 60px, var(--color-paper) 100%);
+        background-repeat: no-repeat;
+    }
         .calendar-card { background-color: white; border-radius: 30px; box-shadow: 0 10px 30px rgba(121, 85, 72, 0.05); }
         .day-cell { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 14px; position: relative; }
         .day-cell.today-marker { background-color: var(--color-cream); }
