@@ -307,11 +307,43 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         }
 
         function renderFavStats() {
-            const stats = {}; Object.values(drinkData).flat().forEach(d => { stats[d.shop] = (stats[d.shop] || 0) + 1; });
-            const sorted = Object.entries(stats).sort((a,b) => b[1]-a[1]);
-            document.getElementById('favContent').innerHTML = sorted.map(([n, c], i) => `
-                <div class="bg-white p-5 rounded-2xl flex justify-between items-center shadow-sm"><span class="font-black text-xs">${i+1}. ${n}</span><span class="font-black text-[#795548] text-sm">${c} 杯</span></div>`).join('') || '<p class="text-center py-10 text-stone-300 text-xs font-black">尚無數據</p>';
+    const container = document.getElementById('favStatsContent'); // 請確認你的容器 ID
+    container.innerHTML = '';
+    
+    const shopData = {};
+    const yPrefix = `${currentYear}-`; // 1. 建立年份前綴
+
+    Object.keys(drinkData).forEach(date => {
+        // 2. 關鍵過濾：只計算符合目前年份的資料
+        if (date.startsWith(yPrefix)) {
+            drinkData[date].forEach(drink => {
+                if (!shopData[drink.shop]) {
+                    shopData[drink.shop] = { count: 0, total: 0 };
+                }
+                shopData[drink.shop].count++;
+                shopData[drink.shop].total += (parseFloat(drink.price) || 0);
+            });
         }
+    });
+
+    // 3. 排序與渲染 (這部分維持你原本的邏輯，以下為範例)
+    const sortedShops = Object.entries(shopData).sort((a, b) => b[1].count - a[1].count);
+    
+    if (sortedShops.length === 0) {
+        container.innerHTML = '<div class="text-center text-stone-400 py-10">今年度尚無店家數據</div>';
+        return;
+    }
+
+    container.innerHTML = sortedShops.map(([shop, data]) => `
+        <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm mb-2">
+            <div>
+                <div class="font-bold text-[#6F4E37]">${shop}</div>
+                <div class="text-xs text-stone-400">${data.count} 次紀錄</div>
+            </div>
+            <div class="font-black text-[#6F4E37]">$${data.total.toLocaleString()}</div>
+        </div>
+    `).join('');
+}
 
         function renderStats() {
     const container = document.getElementById('statsContent');
