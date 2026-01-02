@@ -314,17 +314,33 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         }
 
         function renderStats() {
-    // 1. 這裡加上 filter，只抓出符合當前年份 (currentYear) 的日期
+    const container = document.getElementById('statsContent');
+    // 1. 先過濾年份，再排序
     const dates = Object.keys(drinkData)
-        .filter(d => d.startsWith(`${currentYear}-`)) 
+        .filter(d => d.startsWith(`${currentYear}-`))
         .sort().reverse();
 
-    // 2. 這裡維持你原本的 map 渲染邏輯
-    document.getElementById('statsContent').innerHTML = dates.map(d => drinkData[d].map(drink => `
-        <div class="bg-white p-5 rounded-2xl shadow-sm">
-            <div class="flex justify-between text-[9px] font-black text-stone-200 mb-1">
+    // 2. 如果沒資料，顯示提示訊息
+    if (dates.length === 0) {
+        container.innerHTML = '<div class="text-center text-stone-400 py-10">今年度尚無紀錄</div>';
+        return;
+    }
+
+    // 3. 渲染清單（確保 drink.shop, drink.name 等變數正確放入）
+    container.innerHTML = dates.map(d => drinkData[d].map(drink => `
+        <div class="bg-white p-5 rounded-2xl shadow-sm mb-3">
+            <div class="flex justify-between text-[10px] font-black text-stone-300 mb-2">
                 <span>${d}</span>
-                `)).join(''); // 記得最後面通常會有個 .join('')
+            </div>
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="text-[#6F4E37] font-bold text-lg">${drink.shop}</div>
+                    <div class="text-stone-500 text-sm">${drink.name} (${drink.ice}/${drink.sugar})</div>
+                </div>
+                <div class="text-[#6F4E37] font-black text-xl">$${drink.price}</div>
+            </div>
+        </div>
+    `).join('')).join('');
 }
 
         function exportData() {
