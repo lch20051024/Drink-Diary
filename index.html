@@ -284,7 +284,7 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
                     <div><p class="text-[9px] text-stone-300 font-black tracking-tight">${d.shop}</p><p class="font-black text-sm">${d.item}</p><p class="text-[9px] text-[#A68B7C] font-black mt-1">${d.ice} / ${d.sugar} • $${d.price || 0}</p></div>
                     <button onclick="deleteDrink(${i})" class="text-red-200 text-[10px] font-black p-2">刪除</button>
                 </div>`).join('');
-            document.getElementById('addNewDrinkBtn').style.display = drinks.length >= 2 ? 'none' : 'block';
+            document.getElementById('addNewDrinkBtn').style.display = drinks.length >= 4 ? 'none' : 'block';
         }
 
         document.getElementById('drinkForm').onsubmit = (e) => {
