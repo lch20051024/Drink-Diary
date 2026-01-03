@@ -396,6 +396,31 @@ function saveEdit() {
     renderStats();
     renderFavStats();
 }
+        // --- 補上這段，負責把舊資料填回表單 ---
+function editDrink(date, index) {
+    const drink = drinkData[date][index];
+    editingTarget = { date, index }; // 標記目前正在編輯哪一筆
+
+    showDrinkForm(date); // 顯示表單
+    
+    // 填入文字資料
+    document.getElementById('shopName').value = drink.shop;
+    document.getElementById('itemName').value = drink.item || drink.itemName;
+    document.getElementById('price').value = drink.price;
+
+    // 填入冰塊甜度選項 (Radio)
+    if (drink.ice) {
+        const iceInput = document.querySelector(`input[name="ice"][value="${drink.ice}"]`);
+        if (iceInput) iceInput.checked = true;
+    }
+    if (drink.sugar) {
+        const sugarInput = document.querySelector(`input[name="sugar"][value="${drink.sugar}"]`);
+        if (sugarInput) sugarInput.checked = true;
+    }
+
+    // 修改按鈕文字提醒使用者正在編輯
+    document.getElementById('submitBtn').innerText = "儲存修改";
+}
         function renderFavStats() {
     const shopStats = {}; 
     
