@@ -412,35 +412,37 @@
     const shopStats = {};
     Object.keys(drinkData).forEach(date => {
         drinkData[date].forEach(d => {
-            if (!shopStats[d.shop]) shopStats[d.shop] = { count: 0, total: 0 };
+            if (!shopStats[d.shop]) shopStats[d.shop] = { count: 0 };
             shopStats[d.shop].count++;
-            shopStats[d.shop].total += (Number(d.price) || 0);
         });
     });
 
     const sorted = Object.entries(shopStats).sort((a, b) => b[1].count - a[1].count);
     const container = document.getElementById('favContent');
+    const detailBox = document.getElementById('shopDetailContainer');
+    
+    // 每次進入時確保列表顯示、細節隱藏
+    container.classList.remove('hidden');
+    if (detailBox) detailBox.classList.add('hidden');
 
     if (sorted.length === 0) {
         container.innerHTML = '<p class="text-center text-stone-300 py-10">目前還沒有紀錄喔！</p>';
         return;
     }
 
-    // 建立外層圓角卡片
     let html = `
         <div class="bg-white p-7 rounded-[35px] shadow-sm border border-stone-100">
             <p class="text-stone-300 font-black text-[11px] mb-6 tracking-widest">年度熱門店家 (點擊看細節)</p>
             <div class="space-y-6">
     `;
 
-    // 建立每一列排名
     html += sorted.map(([shop, s], index) => `
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between cursor-pointer group" onclick="showShopDetail('${shop}')">
             <div class="flex items-center gap-4">
                 <div class="w-9 h-9 bg-[#8D6E63] text-white rounded-full flex items-center justify-center font-black text-sm shadow-sm">
                     ${index + 1}
                 </div>
-                <span class="font-black text-[#5D4037] text-base tracking-tight">${shop}</span>
+                <span class="font-black text-[#5D4037] text-base group-hover:text-[#8D6E63] transition-colors">${shop}</span>
             </div>
             <div class="flex items-center gap-2 bg-stone-50/80 px-4 py-2 rounded-full border border-stone-100">
                 <span class="text-[10px] font-black text-stone-300">品項排名</span>
@@ -451,8 +453,46 @@
         </div>
     `).join('');
 
-    html += `</div></div>`;
-    container.innerHTML = html;
+    container.innerHTML = html + `</div></div>`;
+}
+
+// 這裡是新增的兩個關鍵函數，請接在上面那個函數後面
+function showShopDetail(shopName) {
+    const itemStats = {};
+    Object.keys(drinkData).forEach(date => {
+        drinkData[date].forEach(d => {
+            if (d.shop === shopName) {
+                if (!itemStats[d.item]) itemStats[d.item] = 0;
+                itemStats[d.item]++;
+            }
+        });
+    });
+
+    const sortedItems = Object.entries(itemStats).sort((a, b) => b[1] - a[1]);
+    document.getElementById('favContent').classList.add('hidden');
+    document.getElementById('shopDetailContainer').classList.remove('hidden');
+
+    document.getElementById('shopDetailContent').innerHTML = `
+        <div class="bg-white p-7 rounded-[35px] shadow-sm border border-stone-100">
+            <h2 class="text-[#5D4037] font-black text-xl mb-1">${shopName}</h2>
+            <p class="text-stone-300 font-black text-[11px] mb-6 tracking-widest">店內品項排行</p>
+            <div class="space-y-5">
+                ${sortedItems.map(([item, count], index) => `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <span class="text-stone-200 font-black text-xs">${index + 1}</span>
+                            <span class="font-black text-[#795548] text-sm">${item}</span>
+                        </div>
+                        <span class="bg-stone-50 text-[#8D6E63] text-[10px] font-black px-3 py-1 rounded-full border border-stone-50">${count} 杯</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function backToShopList() {
+    renderFavStats();
 }
 
         document.getElementById('prevMonth').onclick = () => { currentMonth--; if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(); };
