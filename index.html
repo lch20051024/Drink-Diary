@@ -287,14 +287,26 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         function hideDrinkForm() { document.getElementById('drinkForm').classList.add('hidden'); renderExistingDrinks(); }
 
         function renderExistingDrinks() {
-            const drinks = drinkData[document.getElementById('selectedDate').value] || [];
-            document.getElementById('existingDrinksContainer').innerHTML = drinks.map((d, i) => `
-                <div class="bg-white p-4 rounded-2xl border border-stone-100 flex justify-between items-center shadow-sm">
-                    <div><p class="text-[9px] text-stone-300 font-black tracking-tight">${d.shop}</p><p class="font-black text-sm">${d.item}</p><p class="text-[9px] text-[#A68B7C] font-black mt-1">${d.ice} / ${d.sugar} • $${d.price || 0}</p></div>
-                    <button onclick="deleteDrink(${i})" class="text-red-200 text-[10px] font-black p-2">刪除</button>
-                </div>`).join('');
-            document.getElementById('addNewDrinkBtn').style.display = drinks.length >= 4 ? 'none' : 'block';
-        }
+    const date = document.getElementById('selectedDate').value;
+    const drinks = drinkData[date] || [];
+    
+    document.getElementById('existingDrinksContainer').innerHTML = drinks.map((d, i) => `
+        <div class="bg-white p-4 rounded-2xl border border-stone-100 flex justify-between items-center shadow-sm mb-2">
+            <div>
+                <p class="text-[9px] text-stone-300 font-black tracking-tight">${d.shop}</p>
+                <p class="font-black text-sm text-[#5D4037]">${d.item}</p>
+                <p class="text-[9px] text-stone-400">${d.ice} / ${d.sugar} ・ $${d.price}</p>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="editDrink('${date}', ${i})" class="text-[#795548] text-[10px] font-black p-2">編輯</button>
+                <button onclick="deleteDrink(${i})" class="text-red-200 text-[10px] font-black p-2">刪除</button>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('addNewDrinkBtn').style.display = drinks.length >= 4 ? 'none' : 'block';
+}
 
         document.getElementById('drinkForm').onsubmit = (e) => {
     e.preventDefault();
