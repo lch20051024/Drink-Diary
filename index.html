@@ -377,7 +377,8 @@ function editDrink(date, index) {
 
 // 2. 統一處理提交按鈕
 function handleDrinkSubmit() {
-    if (editingTarget !== null) {
+    // 檢查是否有正在編輯的目標
+    if (editingTarget !== null && editingTarget !== undefined) {
         saveEdit(); 
     } else {
         addDrink(); 
@@ -386,24 +387,31 @@ function handleDrinkSubmit() {
 
 // 3. 儲存修改內容
 function saveEdit() {
+    if (!editingTarget) return;
     const { date, index } = editingTarget;
 
+    // 取得表單內容，確保 ID 與 HTML 一致
     const updatedDrink = {
         shop: document.getElementById('shopName').value,
         item: document.getElementById('itemName').value,
-        price: document.getElementById('price').value,
-        ice: document.querySelector('input[name="ice"]:checked')?.value || "",
-        sugar: document.querySelector('input[name="sugar"]:checked')?.value || ""
+        price: Number(document.getElementById('price').value) || 0,
+        // 使用問號防止未選取時報錯
+        ice: document.querySelector('input[name="ice"]:checked')?.value || "正常冰",
+        sugar: document.querySelector('input[name="sugar"]:checked')?.value || "全糖"
     };
 
+    // 執行資料覆蓋
     drinkData[date][index] = updatedDrink;
     
+    // 儲存與介面更新
     saveData(); 
     hideDrinkForm(); 
     
+    // 重置編輯狀態
     editingTarget = null;
     document.getElementById('submitBtn').innerText = "儲存 🧋";
     
+    // 重新渲染畫面
     renderCalendar();
     renderStats();
     renderFavStats();
@@ -411,26 +419,23 @@ function saveEdit() {
         // --- 補上這段，負責把舊資料填回表單 ---
 function editDrink(date, index) {
     const drink = drinkData[date][index];
-    editingTarget = { date, index }; // 標記目前正在編輯哪一筆
+    editingTarget = { date, index };
 
-    showDrinkForm(date); // 顯示表單
+    showDrinkForm(date); 
     
-    // 填入文字資料
+    // 填入數值
     document.getElementById('shopName').value = drink.shop;
-    document.getElementById('itemName').value = drink.item || drink.itemName;
+    document.getElementById('itemName').value = drink.item;
     document.getElementById('price').value = drink.price;
 
-    // 填入冰塊甜度選項 (Radio)
-    if (drink.ice) {
-        const iceInput = document.querySelector(`input[name="ice"][value="${drink.ice}"]`);
-        if (iceInput) iceInput.checked = true;
-    }
-    if (drink.sugar) {
-        const sugarInput = document.querySelector(`input[name="sugar"][value="${drink.sugar}"]`);
-        if (sugarInput) sugarInput.checked = true;
-    }
+    // 勾選 Radio (加上安全檢查)
+    const iceTarget = document.querySelector(`input[name="ice"][value="${drink.ice}"]`);
+    if (iceTarget) iceTarget.checked = true;
+    
+    const sugarTarget = document.querySelector(`input[name="sugar"][value="${drink.sugar}"]`);
+    if (sugarTarget) sugarTarget.checked = true;
 
-    // 修改按鈕文字提醒使用者正在編輯
+    // 變更按鈕文字
     document.getElementById('submitBtn').innerText = "儲存修改";
 }
         function renderFavStats() {
