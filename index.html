@@ -421,7 +421,7 @@
     const container = document.getElementById('favContent');
     const detailBox = document.getElementById('shopDetailContainer');
     
-    // 每次進入時確保列表顯示、細節隱藏
+    // 確保每次進來時，清單是開的，細節是關的
     container.classList.remove('hidden');
     if (detailBox) detailBox.classList.add('hidden');
 
@@ -432,7 +432,7 @@
 
     let html = `
         <div class="bg-white p-7 rounded-[35px] shadow-sm border border-stone-100">
-            <p class="text-stone-300 font-black text-[11px] mb-6 tracking-widest">年度熱門店家</p>
+            <p class="text-stone-300 font-black text-[11px] mb-6 tracking-widest">年度熱門店家 (點擊看細節)</p>
             <div class="space-y-6">
     `;
 
@@ -444,16 +444,18 @@
                 </div>
                 <span class="font-black text-[#5D4037] text-base group-hover:text-[#8D6E63] transition-colors">${shop}</span>
             </div>
-            <div class="flex items-center gap-2 bg-stone-50/80 px-4 py-2 rounded-full border border-stone-100">
+            
+            <div class="flex items-center gap-1.5 bg-stone-50/80 pl-4 pr-3 py-2 rounded-full border border-stone-100 transition-all active:scale-95">
                 <span class="text-[10px] font-black text-stone-300">品項排名</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-stone-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="9 5l7 7-7 7" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-stone-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M9 5l7 7-7 7" />
                 </svg>
             </div>
         </div>
     `).join('');
 
-    container.innerHTML = html + `</div></div>`;
+    html += `</div></div>`;
+    container.innerHTML = html;
 }
 
 // 這裡是新增的兩個關鍵函數，請接在上面那個函數後面
