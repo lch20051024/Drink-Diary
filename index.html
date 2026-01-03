@@ -95,9 +95,15 @@
         </section>
 
         <section id="page-wishlist" class="page-content hidden space-y-4">
-            <h3 class="font-black text-[#5D4037] px-2 pt-4">歷史日記 📖</h3>
-            <div id="statsContent" class="space-y-3 pb-8"></div>
-        </section>
+    <div class="flex justify-between items-center px-2 pt-4">
+        <h3 class="font-black text-[#5D4037]">歷史日記 📖</h3>
+    </div>
+    <div class="px-2">
+        <input type="text" id="drinkSearch" oninput="renderStats()" placeholder="🔍 搜尋店名或品項..." 
+               class="w-full p-3 rounded-xl border border-stone-100 shadow-sm text-sm outline-none focus:border-[#795548]">
+    </div>
+    <div id="statsContent" class="space-y-3 pb-8"></div>
+</section>
 
         <section id="page-settings" class="page-content hidden space-y-6">
             <h3 class="font-black text-[#5D4037] px-2 pt-4">系統設定 ⚙️</h3>
