@@ -400,6 +400,52 @@ function saveEdit() {
         sugar: document.querySelector('input[name="sugar"]:checked')?.value || "全糖"
     };
 
+    // --- 核心新增功能 ---
+function addDrink() {
+    const date = document.getElementById('selectedDate').value; // 取得目前選取的日期
+    
+    // 1. 取得表單輸入的數值
+    const shopName = document.getElementById('shopName').value;
+    const itemName = document.getElementById('itemName').value;
+    const price = document.getElementById('price').value;
+    
+    // 2. 取得 Radio 選項 (冰塊甜度)
+    const ice = document.querySelector('input[name="ice"]:checked')?.value || "正常冰";
+    const sugar = document.querySelector('input[name="sugar"]:checked')?.value || "全糖";
+
+    // 3. 基本防錯：店名和品項不能空白
+    if (!shopName || !itemName) {
+        alert("請輸入店名與飲料名稱喔！");
+        return;
+    }
+
+    // 4. 準備新資料物件
+    const newDrink = {
+        shop: shopName,
+        item: itemName,
+        price: Number(price) || 0,
+        ice: ice,
+        sugar: sugar
+    };
+
+    // 5. 存入 drinkData 資料庫
+    if (!drinkData[date]) {
+        drinkData[date] = [];
+    }
+    drinkData[date].push(newDrink);
+
+    // 6. 儲存並重整畫面
+    saveData(); // 儲存到 localStorage
+    hideDrinkForm(); // 隱藏表單
+    
+    // 7. 重新渲染所有組件
+    renderCalendar();
+    renderStats();
+    renderFavStats();
+    
+    // 8. 清空表單欄位以供下次使用
+    document.getElementById('drinkForm').reset();
+}
     // 執行資料覆蓋
     drinkData[date][index] = updatedDrink;
     
