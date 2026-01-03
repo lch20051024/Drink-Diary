@@ -461,11 +461,17 @@
 // 這裡是新增的兩個關鍵函數，請接在上面那個函數後面
 function showShopDetail(shopName) {
     const itemStats = {};
+    let shopTotalCups = 0;
+    let shopTotalCash = 0;
+
+    // 1. 統計該店家的品項、總杯數、總金額
     Object.keys(drinkData).forEach(date => {
         drinkData[date].forEach(d => {
             if (d.shop === shopName) {
                 if (!itemStats[d.item]) itemStats[d.item] = 0;
                 itemStats[d.item]++;
+                shopTotalCups++;
+                shopTotalCash += (Number(d.price) || 0);
             }
         });
     });
@@ -474,25 +480,32 @@ function showShopDetail(shopName) {
     document.getElementById('favContent').classList.add('hidden');
     document.getElementById('shopDetailContainer').classList.remove('hidden');
 
+    // 2. 渲染畫面（加入總結資訊）
     document.getElementById('shopDetailContent').innerHTML = `
         <div class="bg-white p-7 rounded-[35px] shadow-sm border border-stone-100">
-            <h2 class="text-[#5D4037] font-black text-xl mb-1">${shopName}</h2>
-            <p class="text-stone-300 font-black text-[11px] mb-6 tracking-widest">店內品項排行</p>
-            <div class="space-y-5">
+            <div class="flex justify-between items-start mb-1">
+                <h2 class="text-[#5D4037] font-black text-2xl">${shopName}</h2>
+                <div class="text-right">
+                    <p class="text-[#8D6E63] font-black text-sm">${shopTotalCups} <span class="text-[10px] text-stone-300 ml-0.5">杯</span></p>
+                    <p class="text-stone-300 font-black text-[10px] tracking-tighter">$${shopTotalCash.toLocaleString()}</p>
+                </div>
+            </div>
+            <p class="text-stone-300 font-black text-[11px] mb-8 tracking-widest border-b border-stone-50 pb-4">店內品項排行</p>
+            
+            <div class="space-y-6">
                 ${sortedItems.map(([item, count], index) => `
                     <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <span class="text-stone-200 font-black text-xs">${index + 1}</span>
-                            <span class="font-black text-[#795548] text-sm">${item}</span>
+                        <div class="flex items-center gap-4">
+                            <span class="text-stone-200 font-black text-xs w-4">${index + 1}</span>
+                            <span class="font-black text-[#795548] text-base">${item}</span>
                         </div>
-                        <span class="bg-stone-50 text-[#8D6E63] text-[10px] font-black px-3 py-1 rounded-full border border-stone-50">${count} 杯</span>
+                        <span class="bg-stone-50 text-[#8D6E63] text-[10px] font-black px-4 py-1.5 rounded-full border border-stone-50">${count} 杯</span>
                     </div>
                 `).join('')}
             </div>
         </div>
     `;
 }
-
 function backToShopList() {
     renderFavStats();
 }
