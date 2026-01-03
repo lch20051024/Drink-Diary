@@ -333,9 +333,9 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         }
 
         function renderFavStats() {
-    const shopStats = {}; // ✨ 用來存儲各店家的次數與總金額
+    const shopStats = {}; 
     
-    // 1. 統計該年份的次數與金額
+    // 1. 統計資料 (次數與金額)
     Object.keys(drinkData)
         .filter(d => d.startsWith(`${currentYear}-`))
         .forEach(date => {
@@ -344,42 +344,61 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
                     shopStats[drink.shop] = { count: 0, total: 0 };
                 }
                 shopStats[drink.shop].count += 1;
-                // 確保價格是數字，若無輸入則預設為 0
-                shopStats[drink.shop].total += Number(drink.price) || 0; 
+                shopStats[drink.shop].total += Number(drink.price) || 0;
             });
         });
 
-    // 2. 轉換為陣列並依照「次數」排序
-    const shopItems = Object.entries(shopStats)
-        .sort((a, b) => b[1].count - a[1].count) 
-        .map(([shop, stats]) => `
-            <div onclick="showShopDetail('${shop}')" class="flex justify-between items-center p-4 bg-stone-50 rounded-2xl cursor-pointer hover:bg-stone-100 active:scale-95 transition-all mb-2">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-[#795548] text-white rounded-full flex items-center justify-center font-black text-sm">${stats.count}</div>
+    // 2. 根據目前模式排序 (預設為按杯數) ✨
+    // 請確保在 script 標籤最上方有定義 let favSortMode = 'count';
+    const sortedEntries = Object.entries(shopStats).sort((a, b) => {
+        return (typeof favSortMode !== 'undefined' && favSortMode === 'total') 
+            ? b[1].total - a[1].total 
+            : b[1].count - a[1].count;
+    });
+
+    const shopItems = sortedEntries.map(([shop, stats], index) => `
+        <div onclick="showShopDetail('${shop}')" class="flex justify-between items-center p-4 bg-stone-50 rounded-2xl cursor-pointer hover:bg-stone-100 active:scale-95 transition-all mb-2">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-[#795548] text-white rounded-full flex items-center justify-center font-black text-sm">
+                    ${index + 1}
+                </div>
+                <div class="flex flex-col text-left">
+                    <span class="font-bold text-[#5D4037]">${shop}</span>
+                    <span class="text-[10px] text-stone-400 font-medium">
+                        ${stats.count} 杯 · 共 $${stats.total}
+                    </span>
+                </div>
+            </div>
+            <span class="text-stone-400 text-[10px]">品項排名 ❯</span>
+        </div>
+    `).join('');
+
+    // 3. 渲染畫面：更新標題與加入按鈕
+    const currentMode = typeof favSortMode !== 'undefined' ? favSortMode : 'count';
+    
+    document.getElementById('favContent').innerHTML = `
+        <div class="space-y-4">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-sm font-black text-stone-400">最愛店家排行榜</h4>
                     
-                    <div class="flex flex-col text-left">
-                        <span class="font-bold text-[#5D4037]">${shop}</span>
-                        <span class="text-[10px] text-stone-400 font-medium">
-                            ${stats.count} 杯 · 共 $${stats.total}
-                        </span>
+                    <div class="flex bg-stone-100 p-1 rounded-lg">
+                        <button onclick="toggleFavSort('count')" class="px-3 py-1 text-[10px] rounded-md transition-all ${currentMode === 'count' ? 'bg-white shadow-sm font-bold text-[#795548]' : 'text-stone-400'}">按杯數</button>
+                        <button onclick="toggleFavSort('total')" class="px-3 py-1 text-[10px] rounded-md transition-all ${currentMode === 'total' ? 'bg-white shadow-sm font-bold text-[#795548]' : 'text-stone-400'}">按金額</button>
                     </div>
                 </div>
-                <span class="text-stone-400 text-[10px]">品項排名 ❯</span>
+                ${shopItems || '<div class="text-center text-stone-300 py-10">尚無統計資料</div>'}
             </div>
-        `).join('');
-
-    // 3. 渲染到畫面的容器中
-document.getElementById('favContent').innerHTML = `
-    <div class="space-y-4">
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-            <h4 class="text-sm font-black text-stone-400 mb-4">最愛店家排行榜</h4>
-            ${shopItems || '<div class="text-center text-stone-300 py-10">尚無統計資料</div>'}
+            <div id="shopDetailContainer"></div> 
         </div>
-        <div id="shopDetailContainer"></div> 
-    </div>
-`;
+    `;
 }
 
+// 4. 新增切換排序的函數
+function toggleFavSort(mode) {
+    window.favSortMode = mode; // 儲存排序模式
+    renderFavStats(); // 立即重新渲染
+}
 // ✨ 請在 renderFavStats 結束後（也就是 372 行之後），貼上這個新函數
 function showShopDetail(shopName) {
     const itemCounts = {};
