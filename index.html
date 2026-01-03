@@ -431,6 +431,13 @@
 
         document.getElementById('prevMonth').onclick = () => { currentMonth--; if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(); };
         document.getElementById('nextMonth').onclick = () => { currentMonth++; if(currentMonth>11){currentMonth=0;currentYear++;} renderCalendar(); };
+        // 確保底部按鈕可以切換
+document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.onclick = function() {
+        const tabId = this.getAttribute('data-tab');
+        switchTab(tabId);
+    };
+});
     </script>
 </body>
 </html>
