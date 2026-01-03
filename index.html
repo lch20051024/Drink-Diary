@@ -146,7 +146,7 @@
                 <input type="hidden" id="selectedDate">
                 <div id="existingDrinksContainer" class="space-y-3"></div>
                 <button id="addNewDrinkBtn" onclick="showDrinkForm()" class="w-full py-5 border-2 border-dashed border-[#D7CCC8] text-[#A68B7C] rounded-2xl font-black text-xs">+ 新增紀錄 (最多4杯)</button>
-                <form id="drinkForm" class="hidden space-y-4 bg-stone-50/50 p-5 rounded-3xl border border-stone-100">
+                <form id="drinkForm" onsubmit="return false;" class="hidden space-y-4 bg-stone-50/50 p-5 rounded-3xl border border-stone-100">
                     <div class="grid grid-cols-2 gap-3">
                         <input type="text" id="shopName" placeholder="店名" required class="w-full p-4 rounded-xl shadow-sm text-sm outline-none">
                         <input type="number" id="price" placeholder="金額" class="w-full p-4 rounded-xl shadow-sm text-sm outline-none">
