@@ -369,15 +369,15 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         `).join('');
 
     // 3. 渲染到畫面的容器中
-    document.getElementById('favContent').innerHTML = `
-        <div class="space-y-4">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                <h4 class="text-sm font-black text-stone-400 mb-4">最愛店家排行榜</h4>
-                ${shopItems || '<div class="text-center text-stone-300 py-10">尚無統計資料</div>'}
-            </div>
-            <div id="shopDetailContainer"></div> 
+document.getElementById('favContent').innerHTML = `
+    <div class="space-y-4">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
+            <h4 class="text-sm font-black text-stone-400 mb-4">最愛店家排行榜</h4>
+            ${shopItems || '<div class="text-center text-stone-300 py-10">尚無統計資料</div>'}
         </div>
-    `;
+        <div id="shopDetailContainer"></div> 
+    </div>
+`;
 }
 
 // ✨ 請在 renderFavStats 結束後（也就是 372 行之後），貼上這個新函數
