@@ -398,22 +398,36 @@
         }
 
         function renderFavStats() {
-            const shopStats = {};
-            Object.keys(drinkData).forEach(date => {
-                drinkData[date].forEach(d => {
-                    if (!shopStats[d.shop]) shopStats[d.shop] = { count: 0, total: 0 };
-                    shopStats[d.shop].count++;
-                    shopStats[d.shop].total += Number(d.price) || 0;
-                });
-            });
-            const sorted = Object.entries(shopStats).sort((a,b) => b[1].count - a[1].count);
-            document.getElementById('favContent').innerHTML = sorted.map(([shop, s]) => `
-                <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm mb-2">
-                    <span class="font-black text-[#5D4037]">${shop}</span>
-                    <span class="text-xs text-stone-400">${s.count} 杯 / $${s.total}</span>
-                </div>
-            `).join('') || '<p class="text-center text-stone-300 py-10">尚無統計資料</p>';
-        }
+    const shopStats = {};
+    Object.keys(drinkData).forEach(date => {
+        drinkData[date].forEach(d => {
+            if (!shopStats[d.shop]) shopStats[d.shop] = { count: 0, total: 0 };
+            shopStats[d.shop].count++;
+            shopStats[d.shop].total += Number(d.price) || 0;
+        });
+    });
+
+    const sorted = Object.entries(shopStats).sort((a,b) => b[1].count - a[1].count);
+    const container = document.getElementById('favContent');
+    
+    if (sorted.length === 0) {
+        container.innerHTML = '<p class="text-center text-stone-300 py-10">尚無統計資料</p>';
+        return;
+    }
+
+    container.innerHTML = sorted.map(([shop, s]) => `
+        <div class="bg-white p-5 rounded-[24px] flex justify-between items-center shadow-sm mb-3 border border-stone-50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-[#F5F5F0] rounded-full flex items-center justify-center text-lg">🧋</div>
+                <span class="font-black text-[#5D4037] text-base">${shop}</span>
+            </div>
+            <div class="text-right">
+                <p class="font-black text-[#795548] text-sm">${s.count} 杯</p>
+                <p class="text-[10px] text-stone-300 tracking-tighter">$${s.total.toLocaleString()}</p>
+            </div>
+        </div>
+    `).join('');
+}
 
         document.getElementById('prevMonth').onclick = () => { currentMonth--; if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(); };
         document.getElementById('nextMonth').onclick = () => { currentMonth++; if(currentMonth>11){currentMonth=0;currentYear++;} renderCalendar(); };
