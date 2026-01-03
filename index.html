@@ -344,23 +344,27 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         });
 
     const shopItems = Object.entries(shopCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5) // 只取前五名
-        .map(([shop, count]) => `
-            <div onclick="showShopDetail('${shop}')" class="flex justify-between items-center p-4 bg-stone-50 rounded-2xl cursor-pointer hover:bg-stone-100 active:scale-95 transition-all mb-2">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-[#795548] text-white rounded-full flex items-center justify-center font-black text-sm">${count}</div>
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5) // 只取前五名
+    .map(([shop, count]) => `
+        <div onclick="showShopDetail('${shop}')" class="flex justify-between items-center p-4 bg-stone-50 rounded-2xl cursor-pointer hover:bg-stone-100 active:scale-95 transition-all mb-2">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-[#795548] text-white rounded-full flex items-center justify-center font-black text-sm">${count}</div>
+                
+                <div class="flex flex-col text-left">
                     <span class="font-bold text-[#5D4037]">${shop}</span>
+                    <span class="text-[10px] text-stone-400 font-medium">${count} 杯</span>
                 </div>
-                <span class="text-stone-400 text-[10px]">品項排名 ❯</span>
             </div>
-        `).join('');
+            <span class="text-stone-400 text-[10px]">品項排名 ❯</span>
+        </div>
+    `).join('');
 
     // ✨ 修改點：新增一個 shopDetailContainer 區塊用來放點擊後的結果
     document.getElementById('favContent').innerHTML = `
         <div class="space-y-4">
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                <h4 class="text-sm font-black text-stone-400 mb-4">年度熱門店家 (點擊看細節)</h4>
+                <h4 class="text-sm font-black text-stone-400 mb-4">年度熱門店家</h4>
                 ${shopItems || '<div class="text-center text-stone-300 py-10">尚無統計資料</div>'}
             </div>
             <div id="shopDetailContainer"></div> 
