@@ -333,37 +333,46 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         }
 
         function renderFavStats() {
-    const shopCounts = {};
-    // 1. 統計該年份的店家頻率
+    const shopStats = {}; // ✨ 用來存儲各店家的次數與總金額
+    
+    // 1. 統計該年份的次數與金額
     Object.keys(drinkData)
         .filter(d => d.startsWith(`${currentYear}-`))
         .forEach(date => {
             drinkData[date].forEach(drink => {
-                shopCounts[drink.shop] = (shopCounts[drink.shop] || 0) + 1;
+                if (!shopStats[drink.shop]) {
+                    shopStats[drink.shop] = { count: 0, total: 0 };
+                }
+                shopStats[drink.shop].count += 1;
+                // 確保價格是數字，若無輸入則預設為 0
+                shopStats[drink.shop].total += Number(drink.price) || 0; 
             });
         });
 
-    const shopItems = Object.entries(shopCounts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([shop, count]) => `
-        <div onclick="showShopDetail('${shop}')" class="flex justify-between items-center p-4 bg-stone-50 rounded-2xl cursor-pointer hover:bg-stone-100 active:scale-95 transition-all mb-2">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-[#795548] text-white rounded-full flex items-center justify-center font-black text-sm">${count}</div>
-                
-                <div class="flex flex-col text-left">
-                    <span class="font-bold text-[#5D4037]">${shop}</span>
-                    <span class="text-[10px] text-stone-400 font-medium">${count} 杯</span>
+    // 2. 轉換為陣列並依照「次數」排序
+    const shopItems = Object.entries(shopStats)
+        .sort((a, b) => b[1].count - a[1].count) 
+        .map(([shop, stats]) => `
+            <div onclick="showShopDetail('${shop}')" class="flex justify-between items-center p-4 bg-stone-50 rounded-2xl cursor-pointer hover:bg-stone-100 active:scale-95 transition-all mb-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-[#795548] text-white rounded-full flex items-center justify-center font-black text-sm">${stats.count}</div>
+                    
+                    <div class="flex flex-col text-left">
+                        <span class="font-bold text-[#5D4037]">${shop}</span>
+                        <span class="text-[10px] text-stone-400 font-medium">
+                            ${stats.count} 杯 · 共 $${stats.total}
+                        </span>
+                    </div>
                 </div>
+                <span class="text-stone-400 text-[10px]">品項排名 ❯</span>
             </div>
-            <span class="text-stone-400 text-[10px]">品項排名 ❯</span>
-        </div>
-    `).join('');
+        `).join('');
 
-    // ✨ 修改點：新增一個 shopDetailContainer 區塊用來放點擊後的結果
+    // 3. 渲染到畫面的容器中
     document.getElementById('favContent').innerHTML = `
         <div class="space-y-4">
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                <h4 class="text-sm font-black text-stone-400 mb-4">年度熱門店家</h4>
+                <h4 class="text-sm font-black text-stone-400 mb-4">年度店家消費排行</h4>
                 ${shopItems || '<div class="text-center text-stone-300 py-10">尚無統計資料</div>'}
             </div>
             <div id="shopDetailContainer"></div> 
