@@ -373,32 +373,53 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
 
         function renderStats() {
     const container = document.getElementById('statsContent');
+    // ✨ 取得搜尋框內的文字並轉為小寫
+    const searchTerm = document.getElementById('drinkSearch')?.value.toLowerCase() || ""; 
+    
     // 1. 先過濾年份，再排序
     const dates = Object.keys(drinkData)
         .filter(d => d.startsWith(`${currentYear}-`))
         .sort().reverse();
 
-    // 2. 如果沒資料，顯示提示訊息
-    if (dates.length === 0) {
-        container.innerHTML = '<div class="text-center text-stone-400 py-10">今年度尚無紀錄</div>';
+    let htmlContent = "";
+    let hasResults = false;
+
+    dates.forEach(d => {
+        // 2. ✨ 過濾該日期的飲料：店名 (shop) 或 品項 (item) 包含搜尋字眼就留下
+        const filteredDrinks = drinkData[d].filter(drink => 
+            drink.shop.toLowerCase().includes(searchTerm) || 
+            drink.item.toLowerCase().includes(searchTerm) 
+        );
+
+        // 3. 只有當過濾後還有飲料時，才顯示該日期的區塊
+        if (filteredDrinks.length > 0) {
+            hasResults = true;
+            htmlContent += filteredDrinks.map(drink => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm mb-3">
+                    <div class="flex justify-between text-[10px] font-black text-stone-300 mb-2">
+                        <span>${d}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="text-[#6F4E37] font-bold text-lg">${drink.shop}</div>
+                            <div class="text-stone-500 text-sm">${drink.item} (${drink.ice}/${drink.sugar})</div>
+                        </div>
+                        <div class="text-[#6F4E37] font-black text-xl">$${drink.price || 0}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    });
+
+    // 4. 根據是否有搜尋結果顯示對應內容
+    if (!hasResults) {
+        container.innerHTML = `<div class="text-center text-stone-400 py-10">
+            ${searchTerm ? '找不到符合的紀錄 🔍' : '今年度尚無紀錄'}
+        </div>`;
         return;
     }
 
-    // 3. 渲染清單（確保 drink.shop, drink.name 等變數正確放入）
-    container.innerHTML = dates.map(d => drinkData[d].map(drink => `
-        <div class="bg-white p-5 rounded-2xl shadow-sm mb-3">
-            <div class="flex justify-between text-[10px] font-black text-stone-300 mb-2">
-                <span>${d}</span>
-            </div>
-            <div class="flex justify-between items-center">
-                <div>
-                    <div class="text-[#6F4E37] font-bold text-lg">${drink.item}</div>
-                    <div class="text-stone-500 text-sm">${drink.shop} (${drink.ice}/${drink.sugar})</div>
-                </div>
-                <div class="text-[#6F4E37] font-black text-xl">$${drink.price}</div>
-            </div>
-        </div>
-    `).join('')).join('');
+    container.innerHTML = htmlContent;
 }
 
         function exportData() {
