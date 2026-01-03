@@ -187,9 +187,10 @@
     </div>
 
     <script>
-        let currentYear = new Date().getFullYear(); // 讓年份變動，並自動抓今年
-let currentMonth = new Date().getMonth();
-let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; // 換成永久儲存庫名稱
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth();
+        let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {};
+        let editingTarget = null; 
         const monthNames = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
 
         window.onload = () => {
@@ -197,6 +198,10 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
             if (savedTitle) document.getElementById('mainTitle').innerText = savedTitle;
             renderCalendar();
         };
+
+        function saveData() {
+            localStorage.setItem('drinkData_Permanent', JSON.stringify(drinkData));
+        }
 
         function editTitle() {
             const newTitle = prompt("想換個什麼標題呢？", document.getElementById('mainTitle').innerText);
@@ -247,29 +252,18 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
 
         function updateDashboard() {
             let mTotal = 0, mCups = 0, yTotal = 0, yCups = 0;
-    
-    // 重新定義前綴，確保包含當前年份
-    const mPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-    const yPrefix = `${currentYear}-`; 
+            const mPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const yPrefix = `${currentYear}-`; 
 
-    Object.keys(drinkData).forEach(date => {
-        // 只有符合「目前年份」的日期才會被算進年度統計
-        if (date.startsWith(yPrefix)) {
-            drinkData[date].forEach(d => {
-                const p = parseFloat(d.price) || 0;
-                
-                // 這裡會正確計算該年份的總和
-                yTotal += p;
-                yCups++;
-
-                // 這裡會正確計算該月份的總和
-                if (date.startsWith(mPrefix)) {
-                    mTotal += p;
-                    mCups++;
+            Object.keys(drinkData).forEach(date => {
+                if (date.startsWith(yPrefix)) {
+                    drinkData[date].forEach(d => {
+                        const p = parseFloat(d.price) || 0;
+                        yTotal += p; yCups++;
+                        if (date.startsWith(mPrefix)) { mTotal += p; mCups++; }
+                    });
                 }
             });
-        }
-    });
             document.getElementById('monthTotal').innerText = mTotal.toLocaleString();
             document.getElementById('monthCups').innerText = mCups;
             document.getElementById('yearTotal').innerText = yTotal.toLocaleString();
@@ -279,414 +273,150 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
         function openModal(date) {
             document.getElementById('selectedDate').value = date;
             document.getElementById('modalTitle').innerText = date.replace(/-/g, ' / ');
-            hideDrinkForm(); renderExistingDrinks();
+            hideDrinkForm(); 
+            renderExistingDrinks();
             document.getElementById('entryModal').style.display = 'flex';
         }
+
         function closeModal() { document.getElementById('entryModal').style.display = 'none'; }
-        function showDrinkForm() { document.getElementById('drinkForm').classList.remove('hidden'); document.getElementById('addNewDrinkBtn').style.display = 'none'; }
-        function hideDrinkForm() { document.getElementById('drinkForm').classList.add('hidden'); renderExistingDrinks(); }
+        
+        function showDrinkForm() { 
+            document.getElementById('drinkForm').classList.remove('hidden'); 
+            document.getElementById('addNewDrinkBtn').style.display = 'none'; 
+        }
+
+        function hideDrinkForm() { 
+            document.getElementById('drinkForm').classList.add('hidden'); 
+            document.getElementById('drinkForm').reset();
+            editingTarget = null;
+            document.getElementById('submitBtn').innerText = "儲存 🧋";
+            renderExistingDrinks(); 
+        }
 
         function renderExistingDrinks() {
-    const date = document.getElementById('selectedDate').value;
-    const drinks = drinkData[date] || [];
-    
-    document.getElementById('existingDrinksContainer').innerHTML = drinks.map((d, i) => `
-        <div class="bg-white p-4 rounded-2xl border border-stone-100 flex justify-between items-center shadow-sm mb-2">
-            <div>
-                <p class="text-[9px] text-stone-300 font-black tracking-tight">${d.shop}</p>
-                <p class="font-black text-sm text-[#5D4037]">${d.item}</p>
-                <p class="text-[9px] text-stone-400">${d.ice} / ${d.sugar} ・ $${d.price}</p>
-            </div>
-            
-            <div class="flex gap-3">
-                <button onclick="editDrink('${date}', ${i})" class="text-[#795548] text-[10px] font-black p-2">編輯</button>
-                <button onclick="deleteDrink(${i})" class="text-red-200 text-[10px] font-black p-2">刪除</button>
-            </div>
-        </div>
-    `).join('');
+            const date = document.getElementById('selectedDate').value;
+            const drinks = drinkData[date] || [];
+            document.getElementById('existingDrinksContainer').innerHTML = drinks.map((d, i) => `
+                <div class="bg-white p-4 rounded-2xl border border-stone-100 flex justify-between items-center shadow-sm mb-2">
+                    <div>
+                        <p class="text-[9px] text-stone-300 font-black tracking-tight">${d.shop}</p>
+                        <p class="font-black text-sm text-[#5D4037]">${d.item}</p>
+                        <p class="text-[9px] text-stone-400">${d.ice} / ${d.sugar} ・ $${d.price}</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="editDrink('${date}', ${i})" class="text-[#795548] text-[10px] font-black p-2">編輯</button>
+                        <button onclick="deleteDrink(${i})" class="text-red-200 text-[10px] font-black p-2">刪除</button>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('addNewDrinkBtn').style.display = drinks.length >= 4 ? 'none' : 'block';
+        }
 
-    document.getElementById('addNewDrinkBtn').style.display = drinks.length >= 4 ? 'none' : 'block';
-}
+        function handleDrinkSubmit() {
+            if (editingTarget !== null) {
+                saveEdit();
+            } else {
+                addDrink();
+            }
+        }
 
-        document.getElementById('drinkForm').onsubmit = (e) => {
-    e.preventDefault();
-    const date = document.getElementById('selectedDate').value;
-    const ice = document.querySelector('input[name="ice"]:checked')?.value || "正常";
-    const sugar = document.querySelector('input[name="sugar"]:checked')?.value || "正常";
-    
-    if (!drinkData[date]) drinkData[date] = [];
-    
-    // 1. 儲存資料
-    drinkData[date].push({ 
-        shop: document.getElementById('shopName').value, 
-        item: document.getElementById('itemName').value, 
-        price: document.getElementById('price').value, 
-        ice, 
-        sugar 
-    });
-    
-    localStorage.setItem('drinkData_Permanent', JSON.stringify(drinkData));
-    
-    // 2.  清除表單內容 
-    e.target.reset(); // 清除文字輸入框與 radio 選項
-    
-    // 3.  清除自定義按鈕的顏色 
-    document.querySelectorAll('.radio-label span').forEach(span => {
-        span.classList.remove('bg-[#795548]', 'text-white');
-    });
+        function addDrink() {
+            const date = document.getElementById('selectedDate').value;
+            const shop = document.getElementById('shopName').value;
+            const item = document.getElementById('itemName').value;
+            const price = document.getElementById('price').value;
+            const ice = document.querySelector('input[name="ice"]:checked')?.value || "正常";
+            const sugar = document.querySelector('input[name="sugar"]:checked')?.value || "正常";
 
-    renderCalendar(); 
-    hideDrinkForm();
-};
+            if (!shop || !item) return alert("店名和品項必填喔！");
+
+            if (!drinkData[date]) drinkData[date] = [];
+            drinkData[date].push({ shop, item, price, ice, sugar });
+
+            saveData();
+            renderCalendar();
+            hideDrinkForm();
+        }
+
+        function editDrink(date, index) {
+            const drink = drinkData[date][index];
+            editingTarget = { date, index };
+            showDrinkForm();
+            document.getElementById('shopName').value = drink.shop;
+            document.getElementById('itemName').value = drink.item;
+            document.getElementById('price').value = drink.price;
+            const iceTarget = document.querySelector(`input[name="ice"][value="${drink.ice}"]`);
+            if (iceTarget) iceTarget.checked = true;
+            const sugarTarget = document.querySelector(`input[name="sugar"][value="${drink.sugar}"]`);
+            if (sugarTarget) sugarTarget.checked = true;
+            document.getElementById('submitBtn').innerText = "儲存修改 ✨";
+        }
+
+        function saveEdit() {
+            const { date, index } = editingTarget;
+            drinkData[date][index] = {
+                shop: document.getElementById('shopName').value,
+                item: document.getElementById('itemName').value,
+                price: document.getElementById('price').value,
+                ice: document.querySelector('input[name="ice"]:checked')?.value || "正常",
+                sugar: document.querySelector('input[name="sugar"]:checked')?.value || "正常"
+            };
+            saveData();
+            editingTarget = null;
+            document.getElementById('submitBtn').innerText = "儲存 🧋";
+            renderCalendar();
+            hideDrinkForm();
+        }
 
         function deleteDrink(index) {
             const date = document.getElementById('selectedDate').value;
             drinkData[date].splice(index, 1);
             if (!drinkData[date].length) delete drinkData[date];
-            localStorage.setItem('drinkData_Permanent', JSON.stringify(drinkData));
-            renderCalendar(); renderExistingDrinks();
+            saveData();
+            renderCalendar(); 
+            renderExistingDrinks();
         }
-// --- 編輯功能核心代碼 ---
-let editingTarget = null; // 全域定義編輯目標
 
-// 1. 編輯按鈕點擊：把資料帶回表單
-function editDrink(date, index) {
-    const drink = drinkData[date][index];
-    editingTarget = { date, index };
-
-    showDrinkForm(date); // 顯示表單
-    
-    // 填入文字資料
-    document.getElementById('shopName').value = drink.shop;
-    document.getElementById('itemName').value = drink.item || drink.itemName;
-    document.getElementById('price').value = drink.price;
-
-    // 填入冰塊甜度選項
-    if (drink.ice) {
-        const iceInput = document.querySelector(`input[name="ice"][value="${drink.ice}"]`);
-        if (iceInput) iceInput.checked = true;
-    }
-    if (drink.sugar) {
-        const sugarInput = document.querySelector(`input[name="sugar"][value="${drink.sugar}"]`);
-        if (sugarInput) sugarInput.checked = true;
-    }
-
-    // 修改按鈕文字
-    document.getElementById('submitBtn').innerText = "儲存修改 ✨";
-}
-
-// 2. 統一處理提交按鈕
-function handleDrinkSubmit() {
-    // 檢查是否有正在編輯的目標
-    if (editingTarget !== null && editingTarget !== undefined) {
-        saveEdit(); 
-    } else {
-        addDrink(); 
-    }
-}
-
-// 3. 儲存修改內容
-function saveEdit() {
-    if (!editingTarget) return;
-    const { date, index } = editingTarget;
-
-    // 取得表單內容，確保 ID 與 HTML 一致
-    const updatedDrink = {
-        shop: document.getElementById('shopName').value,
-        item: document.getElementById('itemName').value,
-        price: Number(document.getElementById('price').value) || 0,
-        // 使用問號防止未選取時報錯
-        ice: document.querySelector('input[name="ice"]:checked')?.value || "正常冰",
-        sugar: document.querySelector('input[name="sugar"]:checked')?.value || "全糖"
-    };
-
-    // --- 核心新增功能 ---
-function addDrink() {
-    const date = document.getElementById('selectedDate').value; // 取得目前選取的日期
-    
-    // 1. 取得表單輸入的數值
-    const shopName = document.getElementById('shopName').value;
-    const itemName = document.getElementById('itemName').value;
-    const price = document.getElementById('price').value;
-    
-    // 2. 取得 Radio 選項 (冰塊甜度)
-    const ice = document.querySelector('input[name="ice"]:checked')?.value || "正常冰";
-    const sugar = document.querySelector('input[name="sugar"]:checked')?.value || "全糖";
-
-    // 3. 基本防錯：店名和品項不能空白
-    if (!shopName || !itemName) {
-        alert("請輸入店名與飲料名稱喔！");
-        return;
-    }
-
-    // 4. 準備新資料物件
-    const newDrink = {
-        shop: shopName,
-        item: itemName,
-        price: Number(price) || 0,
-        ice: ice,
-        sugar: sugar
-    };
-
-    // 5. 存入 drinkData 資料庫
-    if (!drinkData[date]) {
-        drinkData[date] = [];
-    }
-    drinkData[date].push(newDrink);
-
-    // 6. 儲存並重整畫面
-    saveData(); // 儲存到 localStorage
-    hideDrinkForm(); // 隱藏表單
-    
-    // 7. 重新渲染所有組件
-    renderCalendar();
-    renderStats();
-    renderFavStats();
-    
-    // 8. 清空表單欄位以供下次使用
-    document.getElementById('drinkForm').reset();
-}
-    // 執行資料覆蓋
-    drinkData[date][index] = updatedDrink;
-    
-    // 儲存與介面更新
-    saveData(); 
-    hideDrinkForm(); 
-    
-    // 重置編輯狀態
-    editingTarget = null;
-    document.getElementById('submitBtn').innerText = "儲存 🧋";
-    
-    // 重新渲染畫面
-    renderCalendar();
-    renderStats();
-    renderFavStats();
-}
-        // --- 補上這段，負責把舊資料填回表單 ---
-function editDrink(date, index) {
-    const drink = drinkData[date][index];
-    editingTarget = { date, index };
-
-    showDrinkForm(date); 
-    
-    // 填入數值
-    document.getElementById('shopName').value = drink.shop;
-    document.getElementById('itemName').value = drink.item;
-    document.getElementById('price').value = drink.price;
-
-    // 勾選 Radio (加上安全檢查)
-    const iceTarget = document.querySelector(`input[name="ice"][value="${drink.ice}"]`);
-    if (iceTarget) iceTarget.checked = true;
-    
-    const sugarTarget = document.querySelector(`input[name="sugar"][value="${drink.sugar}"]`);
-    if (sugarTarget) sugarTarget.checked = true;
-
-    // 變更按鈕文字
-    document.getElementById('submitBtn').innerText = "儲存修改";
-}
-        function renderFavStats() {
-    const shopStats = {}; 
-    
-    // 1. 統計資料 (次數與金額)
-    Object.keys(drinkData)
-        .filter(d => d.startsWith(`${currentYear}-`))
-        .forEach(date => {
-            drinkData[date].forEach(drink => {
-                if (!shopStats[drink.shop]) {
-                    shopStats[drink.shop] = { count: 0, total: 0 };
-                }
-                shopStats[drink.shop].count += 1;
-                shopStats[drink.shop].total += Number(drink.price) || 0;
-            });
-        });
-
-    // 2. 根據目前模式排序 (預設為按杯數) ✨
-    // 請確保在 script 標籤最上方有定義 let favSortMode = 'count';
-    const sortedEntries = Object.entries(shopStats).sort((a, b) => {
-        return (typeof favSortMode !== 'undefined' && favSortMode === 'total') 
-            ? b[1].total - a[1].total 
-            : b[1].count - a[1].count;
-    });
-
-    const shopItems = sortedEntries.map(([shop, stats], index) => `
-        <div onclick="showShopDetail('${shop}')" class="flex justify-between items-center p-4 bg-stone-50 rounded-2xl cursor-pointer hover:bg-stone-100 active:scale-95 transition-all mb-2">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-[#795548] text-white rounded-full flex items-center justify-center font-black text-sm">
-                    ${index + 1}
-                </div>
-                <div class="flex flex-col text-left">
-                    <span class="font-bold text-[#5D4037]">${shop}</span>
-                    <span class="text-[10px] text-stone-400 font-medium">
-                        ${stats.count} 杯 · 共 $${stats.total}
-                    </span>
-                </div>
-            </div>
-            <span class="text-stone-400 text-[10px]">品項排名 ❯</span>
-        </div>
-    `).join('');
-
-    // 3. 渲染畫面：更新標題與加入按鈕
-    const currentMode = typeof favSortMode !== 'undefined' ? favSortMode : 'count';
-    
-    document.getElementById('favContent').innerHTML = `
-        <div class="space-y-4">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-stone-100">
-                <div class="flex justify-between items-center mb-4">
-                    <h4 class="text-sm font-black text-stone-400">最愛店家排行榜</h4>
-                    
-                    <div class="flex bg-stone-100 p-1 rounded-lg">
-                        <button onclick="toggleFavSort('count')" class="px-3 py-1 text-[10px] rounded-md transition-all ${currentMode === 'count' ? 'bg-white shadow-sm font-bold text-[#795548]' : 'text-stone-400'}">按杯數</button>
-                        <button onclick="toggleFavSort('total')" class="px-3 py-1 text-[10px] rounded-md transition-all ${currentMode === 'total' ? 'bg-white shadow-sm font-bold text-[#795548]' : 'text-stone-400'}">按金額</button>
-                    </div>
-                </div>
-                ${shopItems || '<div class="text-center text-stone-300 py-10">尚無統計資料</div>'}
-            </div>
-            <div id="shopDetailContainer"></div> 
-        </div>
-    `;
-}
-
-// 4. 新增切換排序的函數
-function toggleFavSort(mode) {
-    window.favSortMode = mode; // 儲存排序模式
-    renderFavStats(); // 立即重新渲染
-}
-// ✨ 請在 renderFavStats 結束後（也就是 372 行之後），貼上這個新函數
-function showShopDetail(shopName) {
-    const itemCounts = {};
-    Object.keys(drinkData)
-        .filter(d => d.startsWith(`${currentYear}-`))
-        .forEach(date => {
-            drinkData[date].forEach(drink => {
-                if (drink.shop === shopName) {
-                    const itemName = drink.item || "未命名飲品"; // 確保不會出現 undefined
-                    itemCounts[itemName] = (itemCounts[itemName] || 0) + 1;
-                }
-            });
-        });
-
-    const sortedItems = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]);
-
-    const detailHtml = `
-        <div class="bg-[#FDFCFB] p-6 rounded-3xl shadow-sm border-2 border-[#795548]/10 animate-fade-in">
-            <div class="flex justify-between items-center mb-4 border-b border-stone-100 pb-2">
-                <h4 class="text-sm font-black text-[#795548]">🥤 ${shopName} 品項排名</h4>
-                <button onclick="document.getElementById('shopDetailContainer').innerHTML=''" class="text-stone-300 text-xs font-bold">關閉</button>
-            </div>
-            <div class="space-y-3">
-                ${sortedItems.map(([item, count]) => `
-                    <div class="flex justify-between items-center">
-                        <span class="text-stone-600 text-sm font-bold">${item}</span>
-                        <span class="text-[#795548] font-black text-sm">${count} 次</span>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('shopDetailContainer').innerHTML = detailHtml;
-}
         function renderStats() {
-    const container = document.getElementById('statsContent');
-    // ✨ 取得搜尋框內的文字並轉為小寫
-    const searchTerm = document.getElementById('drinkSearch')?.value.toLowerCase() || ""; 
-    
-    // 1. 先過濾年份，再排序
-    const dates = Object.keys(drinkData)
-        .filter(d => d.startsWith(`${currentYear}-`))
-        .sort().reverse();
+            const search = document.getElementById('drinkSearch').value.toLowerCase();
+            const statsContent = document.getElementById('statsContent');
+            let html = '';
+            const sortedDates = Object.keys(drinkData).sort().reverse();
+            sortedDates.forEach(date => {
+                drinkData[date].forEach((d, i) => {
+                    if (d.shop.toLowerCase().includes(search) || d.item.toLowerCase().includes(search)) {
+                        html += `
+                            <div onclick="editDrink('${date}', ${i})" class="bg-white p-4 rounded-2xl shadow-sm border border-stone-50 mb-2 cursor-pointer">
+                                <p class="text-[9px] text-stone-300 font-black">${date}</p>
+                                <p class="font-black text-[#5D4037]">${d.shop} · ${d.item}</p>
+                                <p class="text-[9px] text-stone-400">${d.ice} / ${d.sugar} · $${d.price}</p>
+                            </div>`;
+                    }
+                });
+            });
+            statsContent.innerHTML = html || '<p class="text-center text-stone-300 py-10">找不到紀錄</p>';
+        }
 
-    let htmlContent = "";
-    let hasResults = false;
-
-    dates.forEach(d => {
-        // 2. ✨ 過濾該日期的飲料：店名 (shop) 或 品項 (item) 包含搜尋字眼就留下
-        const filteredDrinks = drinkData[d].filter(drink => 
-            drink.shop.toLowerCase().includes(searchTerm) || 
-            drink.item.toLowerCase().includes(searchTerm) 
-        );
-
-        // 3. 只有當過濾後還有飲料時，才顯示該日期的區塊
-        if (filteredDrinks.length > 0) {
-            hasResults = true;
-            htmlContent += filteredDrinks.map(drink => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm mb-3">
-                    <div class="flex justify-between text-[10px] font-black text-stone-300 mb-2">
-                        <span>${d}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <div class="text-[#6F4E37] font-bold text-lg">${drink.shop}</div>
-                            <div class="text-stone-500 text-sm">${drink.item} (${drink.ice}/${drink.sugar})</div>
-                        </div>
-                        <div class="text-[#6F4E37] font-black text-xl">$${drink.price || 0}</div>
-                    </div>
+        function renderFavStats() {
+            const shopStats = {};
+            Object.keys(drinkData).forEach(date => {
+                drinkData[date].forEach(d => {
+                    if (!shopStats[d.shop]) shopStats[d.shop] = { count: 0, total: 0 };
+                    shopStats[d.shop].count++;
+                    shopStats[d.shop].total += Number(d.price) || 0;
+                });
+            });
+            const sorted = Object.entries(shopStats).sort((a,b) => b[1].count - a[1].count);
+            document.getElementById('favContent').innerHTML = sorted.map(([shop, s]) => `
+                <div class="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm mb-2">
+                    <span class="font-black text-[#5D4037]">${shop}</span>
+                    <span class="text-xs text-stone-400">${s.count} 杯 / $${s.total}</span>
                 </div>
-            `).join('');
-        }
-    });
-
-    // 4. 根據是否有搜尋結果顯示對應內容
-    if (!hasResults) {
-        container.innerHTML = `<div class="text-center text-stone-400 py-10">
-            ${searchTerm ? '找不到符合的紀錄 🔍' : '今年度尚無紀錄'}
-        </div>`;
-        return;
-    }
-
-    container.innerHTML = htmlContent;
-}
-
-        function exportData() {
-            const data = localStorage.getItem('drinkData_Permanent');
-            if (!data) return alert("沒數據可備份");
-            const blob = new Blob([data], { type: 'application/json' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-            a.download = `手搖備份_${new Date().toLocaleDateString()}.json`; a.click();
+            `).join('') || '<p class="text-center text-stone-300 py-10">尚無統計資料</p>';
         }
 
-        function importData() { document.getElementById('fileInput').click(); }
-        document.getElementById('fileInput').onchange = (e) => {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                if (confirm("確定還原？會蓋掉現有紀錄喔")) {
-                    localStorage.setItem('drinkData_Permanent', ev.target.result);
-                    location.reload();
-                }
-            };
-            reader.readAsText(e.target.files[0]);
-        };
-
-        function clearData() { if (confirm("確定清空？")) { localStorage.removeItem('drinkData_Permanent'); location.reload(); } }
-
-        // 往回按的邏輯
-document.getElementById('prevMonth').onclick = () => {
-    if (currentMonth > 0) {
-        currentMonth--;
-    } else {
-        currentMonth = 11;
-        currentYear--; // 如果是 1 月再往回按，年份就會扣 1
-    }
-    renderCalendar();
-};
-
-// 往下按的邏輯
-document.getElementById('nextMonth').onclick = () => {
-    if (currentMonth < 11) {
-        currentMonth++;
-    } else {
-        currentMonth = 0;
-        currentYear++; // 如果是 12 月再往後按，年份就會加 1
-    }
-    renderCalendar();
-};
-
-        document.body.addEventListener('change', e => {
-            if (e.target.type === 'radio') {
-                document.querySelectorAll(`input[name="${e.target.name}"]`).forEach(i => i.nextElementSibling.classList.remove('bg-[#795548]', 'text-white'));
-                e.target.nextElementSibling.classList.add('bg-[#795548]', 'text-white');
-            }
-        });
+        document.getElementById('prevMonth').onclick = () => { currentMonth--; if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(); };
+        document.getElementById('nextMonth').onclick = () => { currentMonth++; if(currentMonth>11){currentMonth=0;currentYear++;} renderCalendar(); };
     </script>
 </body>
 </html>
