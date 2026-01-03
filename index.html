@@ -345,7 +345,6 @@ let drinkData = JSON.parse(localStorage.getItem('drinkData_Permanent')) || {}; /
 
     const shopItems = Object.entries(shopCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 5) // 只取前五名
     .map(([shop, count]) => `
         <div onclick="showShopDetail('${shop}')" class="flex justify-between items-center p-4 bg-stone-50 rounded-2xl cursor-pointer hover:bg-stone-100 active:scale-95 transition-all mb-2">
             <div class="flex items-center gap-3">
