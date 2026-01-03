@@ -90,9 +90,20 @@
         </section>
 
         <section id="page-stats" class="page-content hidden space-y-4">
-            <h3 class="font-black text-[#5D4037] px-2 pt-4">店家分析 🏆</h3>
-            <div id="favContent" class="space-y-3 pb-8"></div>
-        </section>
+    <h3 class="font-black text-[#5D4037] px-2 pt-4">店家分析 🏆</h3>
+    
+    <div id="favContent" class="space-y-3 pb-8"></div>
+
+    <div id="shopDetailContainer" class="hidden px-2 pb-8">
+        <button onclick="backToShopList()" class="mb-4 text-stone-400 text-[11px] font-black flex items-center gap-1 hover:text-[#8D6E63]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M15 19l-7-7 7-7" />
+            </svg>
+            返回列表
+        </button>
+        <div id="shopDetailContent"></div>
+    </div>
+</section>
 
         <section id="page-wishlist" class="page-content hidden space-y-4">
     <div class="flex justify-between items-center px-2 pt-4">
